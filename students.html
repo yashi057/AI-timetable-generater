@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Time Weaver</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="students.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Time Weaver</h2>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="timetable.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Timetables</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="students.html" class="nav-link">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Classes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="teachers.html" class="nav-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="courses.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-user-graduate"></i> Class Room  Management</h1>
+                    <p>Manage Class Room  information and availability </p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn primary" onclick="openAddStudentModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Class Room
+                    </button>
+                    <button class="btn secondary" onclick="importStudents()">
+                        <i class="fas fa-upload"></i>
+                        Import Class Room
+                    </button>
+                    <button class="btn secondary" onclick="exportStudents()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,247</h3>
+                            <p>Total Classes</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8.2%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>1,189</h3>
+                            <p>Booked classes </p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5.1%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>58</h3>
+                            <p>Available Classes </p>
+                        </div>
+                        <div class="stat-trend neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>1%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>12</h3>
+                            <p>Departments</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+1</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search and Filters -->
+            <section class="search-section">
+                <div class="search-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="studentSearch" placeholder="Search students by name, ID, or email..." onkeyup="searchStudents()">
+                    </div>
+                    <div class="filters">
+                        <select id="departmentFilter" onchange="filterStudents()">
+                            <option value="">All Departments</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                        </select>
+                        <select id="yearFilter" onchange="filterStudents()">
+                            <option value="">All Years</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterStudents()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="graduated">Graduated</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Table -->
+            <section class="students-table-section">
+                <div class="table-container">
+                    <table class="students-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                </th>
+                                <th>Class No</th>
+                                <th>Time Slot</th>
+                                <th>Class</th>
+                                <th>Department</th>
+                                <th>Teacher</th>
+                                <th>Year</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr data-student-id="CS2024001">
+                                <td><input type="checkbox" class="student-checkbox"></td>
+                                <td>
+                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
+                                </td>
+                                <td>CS2024001</td>
+                                <td>John Smith</td>
+                                <td>john.smith@university.edu</td>
+                                <td>Computer Science</td>
+                                <td>2nd Year</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewStudent('CS2024001')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editStudent('CS2024001')" title="Edit Student">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="viewSchedule('CS2024001')" title="View Schedule">
+                                            <i class="fas fa-calendar"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteStudent('CS2024001')" title="Delete Student">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-student-id="MATH2024002">
+                                <td><input type="checkbox" class="student-checkbox"></td>
+                                <td>
+                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
+                                </td>
+                                <td>MATH2024002</td>
+                                <td>Emily Johnson</td>
+                                <td>emily.johnson@university.edu</td>
+                                <td>Mathematics</td>
+                                <td>3rd Year</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" 0onclick="viewStudent('MATH2024002')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editStudent('MATH2024002')" title="Edit Student">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="viewSchedule('MATH2024002')" title="View Schedule">
+                                            <i class="fas fa-calendar"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteStudent('MATH2024002')" title="Delete Student">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-student-id="PHY2024003">
+                                <td><input type="checkbox" class="student-checkbox"></td>
+                                <td>
+                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
+                                </td>
+                                <td>PHY2024003</td>
+                                <td>Michael Brown</td>
+                                <td>michael.brown@university.edu</td>
+                                <td>Physics</td>
+                                <td>1st Year</td>
+                                <td><span class="status-badge inactive">Inactive</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewStudent('PHY2024003')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editStudent('PHY2024003')" title="Edit Student">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="viewSchedule('PHY2024003')" title="View Schedule">
+                                            <i class="fas fa-calendar"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteStudent('PHY2024003')" title="Delete Student">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing 1-10 of 1,247 students
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn secondary" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                            Previous
+                        </button>
+                        <div class="page-numbers">
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <span>...</span>
+                            <button class="page-btn">125</button>
+                        </div>
+                        <button class="btn secondary">
+                            Next
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Student Modal -->
+            <div class="modal large" id="addStudentModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Student</h3>
+                        <button class="modal-close" onclick="closeModal('addStudentModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addStudentForm">
+                            <div class="form-section">
+                                <h4>Personal Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name *</label>
+                                        <input type="text" id="firstName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name *</label>
+                                        <input type="text" id="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email *</label>
+                                        <input type="email" id="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <input type="tel" id="phone">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dateOfBirth">Date of Birth</label>
+                                        <input type="date" id="dateOfBirth">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gender">Gender</label>
+                                        <select id="gender">
+                                            <option value="">Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Academic Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="studentId">Student ID *</label>
+                                        <input type="text" id="studentId" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="department">Department *</label>
+                                        <select id="department" required>
+                                            <option value="">Select Department</option>
+                                            <option value="computer-science">Computer Science</option>
+                                            <option value="mathematics">Mathematics</option>
+                                            <option value="physics">Physics</option>
+                                            <option value="chemistry">Chemistry</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="year">Academic Year *</label>
+                                        <select id="year" required>
+                                            <option value="">Select Year</option>
+                                            <option value="1">1st Year</option>
+                                            <option value="2">2nd Year</option>
+                                            <option value="3">3rd Year</option>
+                                            <option value="4">4th Year</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="enrollmentDate">Enrollment Date</label>
+                                        <input type="date" id="enrollmentDate">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Additional Information</h4>
+                                <div class="form-group">
+                                    <label for="address">Address</label>
+                                    <textarea id="address" rows="3"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="emergencyContact">Emergency Contact</label>
+                                    <input type="text" id="emergencyContact">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+                        <button class="btn primary" onclick="addStudent()">Add Student</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Details Modal -->
+            <div class="modal large" id="studentDetailsModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="studentDetailsTitle">Student Details</h3>
+                        <button class="modal-close" onclick="closeModal('studentDetailsModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="studentDetailsContent">
+                            <!-- Student details will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('studentDetailsModal')">Close</button>
+                        <button class="btn primary" onclick="editCurrentStudent()">Edit Student</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+<!-- Add these script tags BEFORE your existing scripts -->
+<script src="data-manager.js"></script>
+<script src="navigation.js"></script>
+
+
+    <script src="dashboard.js"></script>
+    <script src="students.js"></script>
+</body>
+</html>

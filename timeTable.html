@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Management - Time Weaver</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="timetable.css">
+    <link href="timeTable.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Time Weaver</h2>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="timetable.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Timetables</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="students.html" class="nav-link">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="teachers.html" class="nav-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="courses.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-table"></i> Timetable Management</h1>
+                    <p>Create, view, and manage your class timetables</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn primary" onclick="openCreateTimetableModal()">
+                        <i class="fas fa-plus"></i>
+                        Create New Timetable
+                    </button>
+                    <button class="btn secondary" onclick="generateAutoTimetable()">
+                        <i class="fas fa-magic"></i>
+                        Auto Generate
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filters and Controls -->
+            <section class="controls-section">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Department:</label>
+                        <select id="departmentFilter" onchange="filterTimetables()">
+                            <option value="">All Departments</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Semester:</label>
+                        <select id="semesterFilter" onchange="filterTimetables()">
+                            <option value="">All Semesters</option>
+                            <option value="fall-2024">Fall 2024</option>
+                            <option value="spring-2025">Spring 2025</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select id="statusFilter" onchange="filterTimetables()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="draft">Draft</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                    <button class="btn secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i>
+                        Clear Filters
+                    </button>
+                </div>
+            </section>
+
+            <!-- Timetables Grid -->
+            <section class="timetables-grid">
+                <div class="timetable-card" data-department="computer-science" data-semester="fall-2024" data-status="active">
+                    <div class="card-header">
+                        <h3>Computer Science - Fall 2024</h3>
+                        <div class="status-badge active">Active</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="timetable-info">
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span>24 Classes</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>8 Teachers</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-door-open"></i>
+                                <span>6 Rooms</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Created: Sep 15, 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="viewTimetable('cs-fall-2024')" title="View Timetable">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon" onclick="editTimetable('cs-fall-2024')" title="Edit Timetable">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" onclick="duplicateTimetable('cs-fall-2024')" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon" onclick="exportTimetable('cs-fall-2024')" title="Export">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon danger" onclick="deleteTimetable('cs-fall-2024')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="timetable-card" data-department="mathematics" data-semester="fall-2024" data-status="draft">
+                    <div class="card-header">
+                        <h3>Mathematics - Fall 2024</h3>
+                        <div class="status-badge draft">Draft</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="timetable-info">
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span>18 Classes</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>6 Teachers</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-door-open"></i>
+                                <span>4 Rooms</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Created: Sep 12, 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="viewTimetable('math-fall-2024')" title="View Timetable">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon" onclick="editTimetable('math-fall-2024')" title="Edit Timetable">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" onclick="duplicateTimetable('math-fall-2024')" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon" onclick="exportTimetable('math-fall-2024')" title="Export">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon danger" onclick="deleteTimetable('math-fall-2024')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="timetable-card" data-department="physics" data-semester="fall-2024" data-status="archived">
+                    <div class="card-header">
+                        <h3>Physics - Fall 2024</h3>
+                        <div class="status-badge archived">Archived</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="timetable-info">
+                            <div class="info-item">
+                                <i class="fas fa-users"></i>
+                                <span>15 Classes</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <span>5 Teachers</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-door-open"></i>
+                                <span>3 Rooms</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Created: Sep 10, 2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="viewTimetable('physics-fall-2024')" title="View Timetable">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-icon" onclick="editTimetable('physics-fall-2024')" title="Edit Timetable">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" onclick="duplicateTimetable('physics-fall-2024')" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon" onclick="exportTimetable('physics-fall-2024')" title="Export">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn-icon danger" onclick="deleteTimetable('physics-fall-2024')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Timetable Viewer Modal -->
+            <div class="modal large" id="timetableViewModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="timetableViewTitle">Computer Science - Fall 2024</h3>
+                        <button class="modal-close" onclick="closeModal('timetableViewModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="timetable-view">
+                            <table class="timetable-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="timetableTableBody">
+                                    <!-- Timetable content will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('timetableViewModal')">Close</button>
+                        <button class="btn primary" onclick="printTimetable()">
+                            <i class="fas fa-print"></i>
+                            Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Timetable Modal -->
+            <div class="modal" id="createTimetableModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Create New Timetable</h3>
+                        <button class="modal-close" onclick="closeModal('createTimetableModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createTimetableForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="timetableName">Timetable Name</label>
+                                    <input type="text" id="timetableName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timetableDepartment">Department</label>
+                                    <select id="timetableDepartment" required>
+                                        <option value="">Select Department</option>
+                                        <option value="computer-science">Computer Science</option>
+                                        <option value="mathematics">Mathematics</option>
+                                        <option value="physics">Physics</option>
+                                        <option value="chemistry">Chemistry</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="timetableSemester">Semester</label>
+                                    <select id="timetableSemester" required>
+                                        <option value="">Select Semester</option>
+                                        <option value="fall-2024">Fall 2024</option>
+                                        <option value="spring-2025">Spring 2025</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timeSlots">Daily Time Slots</label>
+                                    <input type="number" id="timeSlots" min="4" max="12" value="8" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="startTime">Start Time</label>
+                                    <input type="time" id="startTime" value="09:00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="slotDuration">Slot Duration (minutes)</label>
+                                    <select id="slotDuration" required>
+                                        <option value="45">45 minutes</option>
+                                        <option value="50" selected>50 minutes</option>
+                                        <option value="60">60 minutes</option>
+                                        <option value="90">90 minutes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="workingDays">Working Days</label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" value="monday" checked> Monday</label>
+                                    <label><input type="checkbox" value="tuesday" checked> Tuesday</label>
+                                    <label><input type="checkbox" value="wednesday" checked> Wednesday</label>
+                                    <label><input type="checkbox" value="thursday" checked> Thursday</label>
+                                    <label><input type="checkbox" value="friday" checked> Friday</label>
+                                    <label><input type="checkbox" value="saturday"> Saturday</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('createTimetableModal')">Cancel</button>
+                        <button class="btn primary" onclick="createTimetable()">Create Timetable</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add these script tags BEFORE your existing scripts -->
+<script src="data-manager.js"></script>
+<script src="navigation.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="timetable.js"></script>
+</body>
+</html>
