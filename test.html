@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navigation</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        nav a { margin-right: 20px; padding: 10px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+        nav a:hover { background: #5a67d8; }
+    </style>
+</head>
+<body>
+    <h1>Navigation Test</h1>
+    
+    <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="courses.html">Courses</a>
+        <a href="timetable.html">Timetable</a>
+    </nav>
+    
+    <div id="status"></div>
+    
+    <script src="data-manager.js"></script>
+    <script>
+        document.getElementById('status').innerHTML = 'Data Manager loaded: ' + (window.dataManager ? 'YES' : 'NO');
+        
+        if (window.dataManager) {
+            const stats = window.dataManager.getStatistics();
+            document.getElementById('status').innerHTML += '<br>Statistics: ' + JSON.stringify(stats);
+        }
+    </script>
+</body>
+</html>

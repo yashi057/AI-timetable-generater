@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management - Time Weaver</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="courses.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Time Weaver</h2>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="timetable.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Timetables</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="students.html" class="nav-link">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="teachers.html" class="nav-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="courses.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-book"></i> Course Management</h1>
+                    <p>Manage courses, subjects, and curriculum</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn primary" onclick="openAddCourseModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Course
+                    </button>
+                    <button class="btn secondary" onclick="importCourses()">
+                        <i class="fas fa-upload"></i>
+                        Import Courses
+                    </button>
+                    <button class="btn secondary" onclick="manageCurriculum()">
+                        <i class="fas fa-graduation-cap"></i>
+                        Manage Curriculum
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>124</h3>
+                            <p>Total Courses</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>98</h3>
+                            <p>Active Courses</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>2,347</h3>
+                            <p>Total Enrollments</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+15.2%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>8</h3>
+                            <p>Departments</p>
+                        </div>
+                        <div class="stat-trend neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>0%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Course Categories -->
+            <section class="categories-section">
+                <h2>Course Categories</h2>
+                <div class="categories-grid">
+                    <div class="category-card" data-department="computer-science">
+                        <div class="category-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="category-info">
+                            <h3>Computer Science</h3>
+                            <p>32 courses available</p>
+                            <div class="category-stats">
+                                <span>856 students enrolled</span>
+                            </div>
+                        </div>
+                        <button class="btn secondary" onclick="viewDepartmentCourses('computer-science')">
+                            View Courses
+                        </button>
+                    </div>
+
+                    <div class="category-card" data-department="mathematics">
+                        <div class="category-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="category-info">
+                            <h3>Mathematics</h3>
+                            <p>28 courses available</p>
+                            <div class="category-stats">
+                                <span>642 students enrolled</span>
+                            </div>
+                        </div>
+                        <button class="btn secondary" onclick="viewDepartmentCourses('mathematics')">
+                            View Courses
+                        </button>
+                    </div>
+
+                    <div class="category-card" data-department="physics">
+                        <div class="category-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="category-info">
+                            <h3>Physics</h3>
+                            <p>24 courses available</p>
+                            <div class="category-stats">
+                                <span>486 students enrolled</span>
+                            </div>
+                        </div>
+                        <button class="btn secondary" onclick="viewDepartmentCourses('physics')">
+                            View Courses
+                        </button>
+                    </div>
+
+                    <div class="category-card" data-department="chemistry">
+                        <div class="category-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="category-info">
+                            <h3>Chemistry</h3>
+                            <p>20 courses available</p>
+                            <div class="category-stats">
+                                <span>363 students enrolled</span>
+                            </div>
+                        </div>
+                        <button class="btn secondary" onclick="viewDepartmentCourses('chemistry')">
+                            View Courses
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters and Search -->
+            <section class="search-section">
+                <div class="search-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="courseSearch" placeholder="Search courses by name, code, or instructor..." onkeyup="searchCourses()">
+                    </div>
+                    <div class="filters">
+                        <select id="departmentFilter" onchange="filterCourses()">
+                            <option value="">All Departments</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                        </select>
+                        <select id="levelFilter" onchange="filterCourses()">
+                            <option value="">All Levels</option>
+                            <option value="100">100 Level</option>
+                            <option value="200">200 Level</option>
+                            <option value="300">300 Level</option>
+                            <option value="400">400 Level</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterCourses()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Courses Table -->
+            <section class="courses-table-section">
+                <div class="table-header">
+                    <h2>All Courses</h2>
+                    <div class="table-actions">
+                        <button class="btn secondary" onclick="exportCourses()">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="courses-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAllCourses" onchange="toggleSelectAllCourses()">
+                                </th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Department</th>
+                                <th>Credits</th>
+                                <th>Instructor</th>
+                                <th>Enrolled</th>
+                                <th>Schedule</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody">
+                            <tr data-course-id="CS101">
+                                <td><input type="checkbox" class="course-checkbox"></td>
+                                <td><strong>CS101</strong></td>
+                                <td>Introduction to Programming</td>
+                                <td>Computer Science</td>
+                                <td>3</td>
+                                <td>Dr. Sarah Johnson</td>
+                                <td>45/50</td>
+                                <td>MWF 9:00-10:00</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewCourse('CS101')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editCourse('CS101')" title="Edit Course">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="manageEnrollment('CS101')" title="Manage Enrollment">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteCourse('CS101')" title="Delete Course">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-course-id="MATH201">
+                                <td><input type="checkbox" class="course-checkbox"></td>
+                                <td><strong>MATH201</strong></td>
+                                <td>Calculus II</td>
+                                <td>Mathematics</td>
+                                <td>4</td>
+                                <td>Prof. Michael Chen</td>
+                                <td>38/40</td>
+                                <td>TTh 11:00-12:30</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewCourse('MATH201')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editCourse('MATH201')" title="Edit Course">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="manageEnrollment('MATH201')" title="Manage Enrollment">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteCourse('MATH201')" title="Delete Course">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-course-id="PHY301">
+                                <td><input type="checkbox" class="course-checkbox"></td>
+                                <td><strong>PHY301</strong></td>
+                                <td>Quantum Physics</td>
+                                <td>Physics</td>
+                                <td>3</td>
+                                <td>Dr. Emily Davis</td>
+                                <td>22/30</td>
+                                <td>MW 2:00-3:30</td>
+                                <td><span class="status-badge inactive">Inactive</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon" onclick="viewCourse('PHY301')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="editCourse('PHY301')" title="Edit Course">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon" onclick="manageEnrollment('PHY301')" title="Manage Enrollment">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                        <button class="btn-icon danger" onclick="deleteCourse('PHY301')" title="Delete Course">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing 1-10 of 124 courses
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn secondary" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                            Previous
+                        </button>
+                        <div class="page-numbers">
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <span>...</span>
+                            <button class="page-btn">13</button>
+                        </div>
+                        <button class="btn secondary">
+                            Next
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Course Modal -->
+            <div class="modal large" id="addCourseModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Course</h3>
+                        <button class="modal-close" onclick="closeModal('addCourseModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addCourseForm">
+                            <div class="form-section">
+                                <h4>Course Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="courseCode">Course Code *</label>
+                                        <input type="text" id="courseCode" required placeholder="e.g., CS101">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="courseName">Course Name *</label>
+                                        <input type="text" id="courseName" required placeholder="e.g., Introduction to Programming">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="courseDepartment">Department *</label>
+                                        <select id="courseDepartment" required>
+                                            <option value="">Select Department</option>
+                                            <option value="computer-science">Computer Science</option>
+                                            <option value="mathematics">Mathematics</option>
+                                            <option value="physics">Physics</option>
+                                            <option value="chemistry">Chemistry</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="courseCredits">Credits *</label>
+                                        <select id="courseCredits" required>
+                                            <option value="">Select Credits</option>
+                                            <option value="1">1 Credit</option>
+                                            <option value="2">2 Credits</option>
+                                            <option value="3">3 Credits</option>
+                                            <option value="4">4 Credits</option>
+                                            <option value="5">5 Credits</option>
+                                            <option value="6">6 Credits</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="courseLevel">Course Level *</label>
+                                        <select id="courseLevel" required>
+                                            <option value="">Select Level</option>
+                                            <option value="100">100 Level (Freshman)</option>
+                                            <option value="200">200 Level (Sophomore)</option>
+                                            <option value="300">300 Level (Junior)</option>
+                                            <option value="400">400 Level (Senior)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="maxEnrollment">Max Enrollment</label>
+                                        <input type="number" id="maxEnrollment" min="1" placeholder="50">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="courseDescription">Course Description</label>
+                                    <textarea id="courseDescription" rows="3" placeholder="Brief description of the course..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Instructor Assignment</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="primaryInstructor">Primary Instructor *</label>
+                                        <select id="primaryInstructor" required>
+                                            <option value="">Select Instructor</option>
+                                            <option value="T001">Dr. Sarah Johnson</option>
+                                            <option value="T002">Prof. Michael Chen</option>
+                                            <option value="T003">Dr. Emily Davis</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="assistantInstructor">Assistant Instructor</label>
+                                        <select id="assistantInstructor">
+                                            <option value="">Select Assistant (Optional)</option>
+                                            <option value="T004">Dr. John Wilson</option>
+                                            <option value="T005">Prof. Lisa Brown</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Schedule Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="meetingDays">Meeting Days *</label>
+                                        <div class="checkbox-group">
+                                            <label><input type="checkbox" name="meetingDays" value="monday"> Monday</label>
+                                            <label><input type="checkbox" name="meetingDays" value="tuesday"> Tuesday</label>
+                                            <label><input type="checkbox" name="meetingDays" value="wednesday"> Wednesday</label>
+                                            <label><input type="checkbox" name="meetingDays" value="thursday"> Thursday</label>
+                                            <label><input type="checkbox" name="meetingDays" value="friday"> Friday</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="startTime">Start Time *</label>
+                                        <input type="time" id="startTime" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endTime">End Time *</label>
+                                        <input type="time" id="endTime" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="preferredRoom">Preferred Room</label>
+                                        <select id="preferredRoom">
+                                            <option value="">Select Room (Optional)</option>
+                                            <option value="A101">Room A101</option>
+                                            <option value="B205">Room B205</option>
+                                            <option value="C301">Room C301</option>
+                                            <option value="LAB1">Computer Lab 1</option>
+                                            <option value="LAB2">Physics Lab 2</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="roomType">Room Type Required</label>
+                                        <select id="roomType">
+                                            <option value="">Any Room Type</option>
+                                            <option value="lecture">Lecture Hall</option>
+                                            <option value="lab">Laboratory</option>
+                                            <option value="seminar">Seminar Room</option>
+                                            <option value="workshop">Workshop</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h4>Prerequisites & Requirements</h4>
+                                <div class="form-group">
+                                    <label for="prerequisites">Prerequisites</label>
+                                    <input type="text" id="prerequisites" placeholder="e.g., MATH101, CS100">
+                                    <small>Enter course codes separated by commas</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="corequisites">Co-requisites</label>
+                                    <input type="text" id="corequisites" placeholder="e.g., MATH201">
+                                    <small>Courses that must be taken simultaneously</small>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('addCourseModal')">Cancel</button>
+                        <button class="btn primary" onclick="addCourse()">Add Course</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Details Modal -->
+            <div class="modal large" id="courseDetailsModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="courseDetailsTitle">Course Details</h3>
+                        <button class="modal-close" onclick="closeModal('courseDetailsModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="courseDetailsContent">
+                            <!-- Course details will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('courseDetailsModal')">Close</button>
+                        <button class="btn primary" onclick="editCurrentCourse()">Edit Course</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+<!-- Add these script tags BEFORE your existing scripts -->
+<script src="data-manager.js"></script>
+<script src="navigation.js"></script>
+
+<!-- Then your existing scripts -->
+<script src="dashboard.js"></script>
+<!-- or students.js, teachers.js, etc. depending on the page -->
+    <script src="dashboard.js"></script>
+    <script src="courses.js"></script>
+</body>
+</html>
