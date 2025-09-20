@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Signup</title>
+    <title>SignIn/SignUp</title>
     <style>
         body {
             display: flex;
@@ -69,7 +69,7 @@
             transform-style: preserve-3d;
         }
 
-        .login-container, .signup-container {
+        .SignIn-container, .signup-container {
             position: absolute;
             width: 100%;
             backface-visibility: hidden;
@@ -138,7 +138,7 @@
             text-decoration: none;
         }
 
-        .form .login-button, .form .signup-button {
+        .form .SignIn-button, .form .signup-button {
             display: block;
             width: 100%;
             font-weight: bold;
@@ -153,12 +153,12 @@
             cursor: pointer;
         }
 
-        .form .login-button:hover, .form .signup-button:hover {
+        .form .SignIn-button:hover, .form .signup-button:hover {
             transform: scale(1.03);
             box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px;
         }
 
-        .form .login-button:active, .form .signup-button:active {
+        .form .SignIn-button:active, .form .signup-button:active {
             transform: scale(0.95);
             box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 15px 10px -10px;
         }
@@ -224,7 +224,7 @@
 </head>
 <body>
     <div style="display: flex; align-items: center; gap: 10px;">
-        <span>Login</span>
+        <span>SignIn</span>
         <label class="label">
             <div class="toggle">
                 <input class="toggle-state" type="checkbox" name="check" value="check" id="toggleSwitch">
@@ -235,13 +235,13 @@
     </div>
     <div class="flip-container">
         <div class="flipper" id="flipper">
-            <div class="login-container">
+            <div class="SignIn-container">
                 <div class="heading">Sign In</div>
                 <form action="" class="form">
                     <input required class="input" type="email" name="email" id="email" placeholder="E-mail">
                     <input required class="input" type="password" name="password" id="password" placeholder="Password">
                     <span class="forgot-password"><a href="#">Forgot Password?</a></span>
-                    <input class="login-button" type="submit" value="Sign In">
+                    <input class="SignIn-button" type="submit" value="Sign In">
                 </form>
 
 
@@ -319,15 +319,15 @@
     document.body.appendChild(messageDiv);
 
     // Select forms and toggle elements
-    const loginForm = document.querySelector('.login-container .form');
+    const SignInForm = document.querySelector('.SignIn-container .form');
     const signupForm = document.querySelector('.signup-container .form');
     const toggleCheckbox = document.querySelector('.toggle-state');
-    const loginHeading = document.querySelector('.login-container .heading');
+    const SignInHeading = document.querySelector('.SignIn-container .heading');
     const signupHeading = document.querySelector('.signup-container .heading');
-    const loginButton = document.querySelector('.login-button');
+    const SignInButton = document.querySelector('.SignIn-button');
     const signupButton = document.querySelector('.signup-button');
     const flipper = document.getElementById('flipper');
-    const loginContainer = document.querySelector('.login-container');
+    const SignInContainer = document.querySelector('.SignIn-container');
     const signupContainer = document.querySelector('.signup-container');
     const toggleContainer = document.querySelector('div[style="display: flex; align-items: center; gap: 10px;"]');
     const loggedInDiv = document.getElementById('logged-in');
@@ -339,9 +339,9 @@
     // Function to update form headings and buttons based on toggle state
     function updateFormMode() {
         const isSignup = toggleCheckbox.checked;
-        loginHeading.textContent = isSignup ? 'Sign Up' : 'Sign In';
+        SignInHeading.textContent = isSignup ? 'Sign Up' : 'Sign In';
         signupHeading.textContent = isSignup ? 'Sign Up' : 'Sign In';
-        loginButton.value = isSignup ? 'Sign Up' : 'Sign In';
+        SignInButton.value = isSignup ? 'Sign Up' : 'Sign In';
         signupButton.value = isSignup ? 'Sign Up' : 'Sign In';
     }
 
@@ -401,7 +401,7 @@
         }
     }
 
-    // Function to validate token and auto-login on load
+    // Function to validate token and auto-SignIn on load
     async function checkTokenOnLoad() {
         const token = localStorage.getItem('token');
         if (token) {
@@ -426,10 +426,10 @@
         }
     }
 
-    // Handle login form submission (dynamic based on toggle)
-    loginForm.addEventListener('submit', async (event) => {
+    // Handle SignIn form submission (dynamic based on toggle)
+    SignInForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const formData = new FormData(loginForm);
+        const formData = new FormData(SignInForm);
         const isSignup = toggleCheckbox.checked;
         const data = isSignup
             ? {
@@ -460,7 +460,7 @@
         }
 
         try {
-            const endpoint = isSignup ? '/faculty_signup' : '/faculty_login';
+            const endpoint = isSignup ? '/faculty_signup' : '/faculty_SignIn';
             const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -470,13 +470,13 @@
                 const result = await response.json();
                 messageDiv.textContent = result.message;
                 messageDiv.style.color = 'green';
-                if (!isSignup) {  // Only on login: store token and show logged-in
+                if (!isSignup) {  // Only on SignIn: store token and show logged-in
                     localStorage.setItem('token', result.access_token);
                     showLoggedIn(result.username);
                 }
             } else {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || (isSignup ? 'Signup failed' : 'Login failed'));
+                throw new Error(errorData.detail || (isSignup ? 'Signup failed' : 'SignIn failed'));
             }
         } catch (error) {
             messageDiv.textContent = 'Error: ' + error.message;
@@ -524,7 +524,7 @@
             });
             if (response.ok) {
                 const result = await response.json();
-                messageDiv.textContent = result.message + ' Please login to continue.';
+                messageDiv.textContent = result.message + ' Please SignIn to continue.';
                 messageDiv.style.color = 'green';
             } else {
                 const errorData = await response.json();
@@ -585,7 +585,7 @@
     resetBtn.style.cursor = 'pointer';
     document.body.appendChild(resetBtn);
     resetBtn.addEventListener('click', () => {
-        loginForm.reset();
+        SignInForm.reset();
         signupForm.reset();
         messageDiv.textContent = '';
         toggleCheckbox.checked = false;
@@ -596,9 +596,9 @@
 
     // Flipper height adjustment (existing)
     function adjustFlipperHeight() {
-        const loginHeight = loginContainer.offsetHeight;
+        const SignInHeight = SignInContainer.offsetHeight;
         const signupHeight = signupContainer.offsetHeight;
-        const maxHeight = Math.max(loginHeight, signupHeight);
+        const maxHeight = Math.max(SignInHeight, signupHeight);
         flipper.style.height = `${maxHeight}px`;
     }
 
@@ -610,4 +610,5 @@
 });
     </script>
 </body>
+
 </html>
