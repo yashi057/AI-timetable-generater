@@ -154,10 +154,27 @@
                             <i class="fas fa-plus"></i>
                             Generate New Timetable
                         </button>
-                        <button class="action-btn secondary" onclick="importData()">
-                            <i class="fas fa-upload"></i>
-                            Import Data
-                        </button>
+                        <div class="import-dropdown-container">
+                            <button class="action-btn secondary" id="importDataBtn" onclick="toggleImportDropdown()">
+                                <i class="fas fa-upload"></i>
+                                Import Data
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+                            <div class="import-dropdown" id="importDropdown">
+                                <div class="dropdown-item" onclick="importTeachers()">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    <span>Import Teachers</span>
+                                </div>
+                                <div class="dropdown-item" onclick="importClasses()">
+                                    <i class="fas fa-users"></i>
+                                    <span>Import Classes</span>
+                                </div>
+                                <div class="dropdown-item" onclick="importCourses()">
+                                    <i class="fas fa-book"></i>
+                                    <span>Import Courses</span>
+                                </div>
+                            </div>
+                        </div>
                         <button class="action-btn secondary" onclick="exportTimetable()">
                             <i class="fas fa-download"></i>
                             Export Timetable
