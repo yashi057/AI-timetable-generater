@@ -67,8 +67,8 @@
             <!-- Header -->
             <header class="page-header">
                 <div class="header-left">
-                    <h1><i class="fas fa-user-graduate"></i> Class Room  Management</h1>
-                    <p>Manage Class Room  information and availability </p>
+                    <h1><i class="fas fa-user-graduate"></i> Class Room Management</h1>
+                    <p>Manage Class Room information and availability</p>
                 </div>
                 <div class="header-actions">
                     <button class="btn primary" onclick="openAddStudentModal()">
@@ -108,7 +108,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>1,189</h3>
-                            <p>Booked classes </p>
+                            <p>Booked classes</p>
                         </div>
                         <div class="stat-trend positive">
                             <i class="fas fa-arrow-up"></i>
@@ -121,7 +121,7 @@
                         </div>
                         <div class="stat-info">
                             <h3>58</h3>
-                            <p>Available Classes </p>
+                            <p>Available Classes</p>
                         </div>
                         <div class="stat-trend neutral">
                             <i class="fas fa-minus"></i>
@@ -149,7 +149,7 @@
                 <div class="search-controls">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="studentSearch" placeholder="Search students by name, ID, or email..." onkeyup="searchStudents()">
+                        <input type="text" id="studentSearch" placeholder="Search by name or class no..." onkeyup="searchStudents()">
                     </div>
                     <div class="filters">
                         <select id="departmentFilter" onchange="filterStudents()">
@@ -187,99 +187,16 @@
                                 </th>
                                 <th>Class No</th>
                                 <th>Time Slot</th>
+                                <th>Name</th>
                                 <th>Class</th>
                                 <th>Department</th>
-                                <th>Teacher</th>
                                 <th>Year</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTableBody">
-                            <tr data-student-id="CS2024001">
-                                <td><input type="checkbox" class="student-checkbox"></td>
-                                <td>
-                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
-                                </td>
-                                <td>CS2024001</td>
-                                <td>John Smith</td>
-                                <td>john.smith@university.edu</td>
-                                <td>Computer Science</td>
-                                <td>2nd Year</td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-icon" onclick="viewStudent('CS2024001')" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="editStudent('CS2024001')" title="Edit Student">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="viewSchedule('CS2024001')" title="View Schedule">
-                                            <i class="fas fa-calendar"></i>
-                                        </button>
-                                        <button class="btn-icon danger" onclick="deleteStudent('CS2024001')" title="Delete Student">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-student-id="MATH2024002">
-                                <td><input type="checkbox" class="student-checkbox"></td>
-                                <td>
-                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
-                                </td>
-                                <td>MATH2024002</td>
-                                <td>Emily Johnson</td>
-                                <td>emily.johnson@university.edu</td>
-                                <td>Mathematics</td>
-                                <td>3rd Year</td>
-                                <td><span class="status-badge active">Active</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-icon" 0onclick="viewStudent('MATH2024002')" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="editStudent('MATH2024002')" title="Edit Student">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="viewSchedule('MATH2024002')" title="View Schedule">
-                                            <i class="fas fa-calendar"></i>
-                                        </button>
-                                        <button class="btn-icon danger" onclick="deleteStudent('MATH2024002')" title="Delete Student">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-student-id="PHY2024003">
-                                <td><input type="checkbox" class="student-checkbox"></td>
-                                <td>
-                                    <img src="https://via.placeholder.com/40" alt="Student Photo" class="student-photo">
-                                </td>
-                                <td>PHY2024003</td>
-                                <td>Michael Brown</td>
-                                <td>michael.brown@university.edu</td>
-                                <td>Physics</td>
-                                <td>1st Year</td>
-                                <td><span class="status-badge inactive">Inactive</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-icon" onclick="viewStudent('PHY2024003')" title="View Details">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="editStudent('PHY2024003')" title="Edit Student">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="viewSchedule('PHY2024003')" title="View Schedule">
-                                            <i class="fas fa-calendar"></i>
-                                        </button>
-                                        <button class="btn-icon danger" onclick="deleteStudent('PHY2024003')" title="Delete Student">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <!-- Table rows will be populated by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -287,7 +204,7 @@
                 <!-- Pagination -->
                 <div class="pagination">
                     <div class="pagination-info">
-                        Showing 1-10 of 1,247 students
+                        Showing 1-10 of 1,247 classes
                     </div>
                     <div class="pagination-controls">
                         <button class="btn secondary" disabled>
@@ -313,7 +230,7 @@
             <div class="modal large" id="addStudentModal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>Add New Student</h3>
+                        <h3>Add New Class</h3>
                         <button class="modal-close" onclick="closeModal('addStudentModal')">
                             <i class="fas fa-times"></i>
                         </button>
@@ -321,51 +238,28 @@
                     <div class="modal-body">
                         <form id="addStudentForm">
                             <div class="form-section">
-                                <h4>Personal Information</h4>
+                                <h4>Class Information</h4>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="firstName">First Name *</label>
-                                        <input type="text" id="firstName" required>
+                                        <label for="classNo">Class No *</label>
+                                        <input type="text" id="classNo" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="lastName">Last Name *</label>
-                                        <input type="text" id="lastName" required>
+                                        <label for="name">Name *</label>
+                                        <input type="text" id="name" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="email">Email *</label>
-                                        <input type="email" id="email" required>
+                                        <label for="timeSlot">Time Slot *</label>
+                                        <input type="text" id="timeSlot" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="phone">Phone Number</label>
-                                        <input type="tel" id="phone">
+                                        <label for="class">Class *</label>
+                                        <input type="text" id="class" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dateOfBirth">Date of Birth</label>
-                                        <input type="date" id="dateOfBirth">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="gender">Gender</label>
-                                        <select id="gender">
-                                            <option value="">Select Gender</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h4>Academic Information</h4>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="studentId">Student ID *</label>
-                                        <input type="text" id="studentId" required>
-                                    </div>
                                     <div class="form-group">
                                         <label for="department">Department *</label>
                                         <select id="department" required>
@@ -376,8 +270,6 @@
                                             <option value="chemistry">Chemistry</option>
                                         </select>
                                     </div>
-                                </div>
-                                <div class="form-row">
                                     <div class="form-group">
                                         <label for="year">Academic Year *</label>
                                         <select id="year" required>
@@ -388,60 +280,51 @@
                                             <option value="4">4th Year</option>
                                         </select>
                                     </div>
+                                </div>
+                                <div class="form-row">
                                     <div class="form-group">
-                                        <label for="enrollmentDate">Enrollment Date</label>
-                                        <input type="date" id="enrollmentDate">
+                                        <label for="status">Status *</label>
+                                        <select id="status" required>
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                            <option value="graduated">Graduated</option>
+                                        </select>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="form-section">
-                                <h4>Additional Information</h4>
-                                <div class="form-group">
-                                    <label for="address">Address</label>
-                                    <textarea id="address" rows="3"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="emergencyContact">Emergency Contact</label>
-                                    <input type="text" id="emergencyContact">
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button class="btn secondary" onclick="closeModal('addStudentModal')">Cancel</button>
-                        <button class="btn primary" onclick="addStudent()">Add Student</button>
+                        <button class="btn primary" onclick="addStudent()">Add Class</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Student Details Modal -->
+            <!-- Class Details Modal -->
             <div class="modal large" id="studentDetailsModal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 id="studentDetailsTitle">Student Details</h3>
+                        <h3 id="studentDetailsTitle">Class Details</h3>
                         <button class="modal-close" onclick="closeModal('studentDetailsModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div id="studentDetailsContent">
-                            <!-- Student details will be loaded here -->
+                            <!-- Class details will be loaded here -->
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn secondary" onclick="closeModal('studentDetailsModal')">Close</button>
-                        <button class="btn primary" onclick="editCurrentStudent()">Edit Student</button>
+                        <button class="btn primary" onclick="editCurrentStudent()">Edit Class</button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
-<!-- Add these script tags BEFORE your existing scripts -->
-<script src="data-manager.js"></script>
-<script src="navigation.js"></script>
-
-
+    <script src="data-manager.js"></script>
+    <script src="navigation.js"></script>
     <script src="dashboard.js"></script>
     <script src="students.js"></script>
 </body>
