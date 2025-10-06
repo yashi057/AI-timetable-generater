@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeTable Generator - College Management System</title>
+    <title>Time Weaver</title>
     <link rel="stylesheet" href="home.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="home-container">
-        <!-- Background Elements -->
+        <!-- Background Shapes -->
         <div class="bg-shapes">
             <div class="shape shape-1"></div>
             <div class="shape shape-2"></div>
@@ -25,94 +25,76 @@
                     <h1>Time Weaver</h1>
                 </div>
                 <nav class="nav-links">
-                    <a href="#about" class="nav-link">About</a>
-                    <a href="#features" class="nav-link">Features</a>
-                    <a href="#contact" class="nav-link">Contact</a>
+                    <a href="#" class="nav-link">About</a>
+                    <a href="#" class="nav-link">Features</a>
+                    <a href="#" class="nav-link">Contact</a>
                 </nav>
             </div>
         </header>
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Left Section - Welcome -->
+            <!-- Welcome Section -->
             <section class="welcome-section">
                 <div class="welcome-text">
                     <h2>Smart TimeTable Generation</h2>
                     <p>Your comprehensive college timetable management solution for seamless academic scheduling and administration</p>
-                    <div class="features-list">
-                        <div class="feature-item">
-                            <i class="fas fa-calendar-check"></i>
-                            <span>Automated Timetable Generation</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-users"></i>
-                            <span>Multi-User Dashboard System</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Real-time Schedule Analytics</span>
-                        </div>
+                </div>
+                <div class="features-list">
+                    <div class="feature-item">
+                        <i class="fas fa-robot"></i>
+                        <span>Automated Timetable Generation</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <span>Multi-User Dashboard System</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Real-time Schedule Analytics</span>
                     </div>
                 </div>
             </section>
 
-            <!-- Center Section - Navigation Buttons -->
+            <!-- Navigation Section -->
             <section class="navigation-section">
                 <h3>Choose Your Portal</h3>
                 <div class="portal-buttons">
-                    <button class="portal-btn admin-btn" onclick="navigateToPortal('admin')">
-                        <div class="btn-icon">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
+                    <button class="portal-btn admin-btn" onclick="navigateToPortal(event, 'admin')">
+                        <i class="fas fa-user-shield btn-icon"></i>
                         <div class="btn-content">
                             <h4>Admin Portal</h4>
                             <p>Manage system, users, and timetable configurations</p>
                         </div>
-                        <div class="btn-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
                     </button>
-
-                    <button class="portal-btn student-btn" onclick="navigateToPortal('student')">
-                        <div class="btn-icon">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
+                    <button class="portal-btn student-btn" onclick="navigateToPortal(event, 'student')">
+                        <i class="fas fa-user-graduate btn-icon"></i>
                         <div class="btn-content">
                             <h4>Student Portal</h4>
                             <p>Access personal timetables and academic schedules</p>
                         </div>
-                        <div class="btn-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
                     </button>
-
-                    <button class="portal-btn faculty-btn" onclick="navigateToPortal('faculty')">
-                        <div class="btn-icon">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                        </div>
+                    <button class="portal-btn faculty-btn" onclick="navigateToPortal(event, 'faculty')">
+                        <i class="fas fa-chalkboard-teacher btn-icon"></i>
                         <div class="btn-content">
                             <h4>Faculty Portal</h4>
                             <p>Manage classes, schedules, and availability status</p>
                         </div>
-                        <div class="btn-arrow">
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                        <i class="fas fa-arrow-right btn-arrow"></i>
                     </button>
                 </div>
             </section>
 
-            <!-- Right Section - Calendar -->
+            <!-- Calendar Section -->
             <section class="calendar-section">
                 <div class="calendar-header">
                     <h3>College Calendar</h3>
                     <div class="calendar-nav">
-                        <button class="nav-btn" onclick="navigateMonth(-1)">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <span class="current-month" id="currentMonth">September 2025</span>
-                        <button class="nav-btn" onclick="navigateMonth(1)">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                        <button class="nav-btn" onclick="navigateMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <div class="current-month" id="currentMonth"></div>
+                        <button class="nav-btn" onclick="navigateMonth(1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 </div>
                 <div class="calendar-container">
@@ -125,9 +107,7 @@
                         <div class="weekday">Fri</div>
                         <div class="weekday">Sat</div>
                     </div>
-                    <div class="calendar-grid" id="calendarGrid">
-                        <!-- Calendar days will be populated by JavaScript -->
-                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
                 <div class="events-legend">
                     <h4>Events Legend</h4>
@@ -153,15 +133,15 @@
             </section>
         </main>
 
-        <!-- Event Details Modal -->
-        <div class="event-modal" id="eventModal">
+        <!-- Event Modal -->
+        <div id="eventModal" class="event-modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="eventTitle">Event Details</h3>
                     <button class="close-modal" onclick="closeEventModal()">&times;</button>
                 </div>
-                <div class="modal-body" id="eventDetails">
-                    <!-- Event details will be populated by JavaScript -->
+                <div class="modal-body">
+                    <div id="eventDetails"></div>
                 </div>
             </div>
         </div>
@@ -171,11 +151,10 @@
             <div class="footer-content">
                 <p>&copy; 2025 TimeTable Generator. All rights reserved.</p>
                 <div class="social-links">
-                    <a href="https://github.com/phoenix16-19/MCQ-Quiz-generator" class="social-link" target="_blank">
-                        <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
                     <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </footer>

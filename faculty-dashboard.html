@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="faculty-dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chalkboard-teacher"></i> Faculty Dashboard</h1>
+                <div class="user-info">
+                    <span class="welcome-text">Welcome, <strong id="facultyName">Ravi</strong></span>
+                    <div class="user-actions">
+                        <div class="availability-toggle">
+                            <span class="availability-label">Status:</span>
+                            <button class="availability-btn" id="availabilityBtn" onclick="toggleAvailability()">
+                                <i class="fas fa-circle" id="statusIcon"></i>
+                                <span id="statusText">Available</span>
+                            </button>
+                        </div>
+                        <button class="btn-export" onclick="exportSchedule()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn-sync" onclick="syncTimetable()">
+                            <i class="fas fa-sync"></i> Sync
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Faculty Info Card -->
+                <div class="faculty-card">
+                    <div class="faculty-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="faculty-details">
+                        <h3 id="facultyID">FAC001</h3>
+                        <p id="facultyDepartment">Computer Science</p>
+                        <p id="facultyPosition">Associate Professor</p>
+                        <div class="faculty-status" id="facultyStatus">
+                            <i class="fas fa-circle status-indicator" id="sidebarStatusIcon"></i>
+                            <span id="sidebarStatusText">Available Today</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability Management -->
+                <div class="availability-management">
+                    <h4><i class="fas fa-calendar-check"></i> Availability Management</h4>
+                    <div class="availability-options">
+                        <div class="availability-option">
+                            <button class="status-btn available active" onclick="setStatus('available')">
+                                <i class="fas fa-circle"></i> Available
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn busy" onclick="setStatus('busy')">
+                                <i class="fas fa-circle"></i> Busy
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn unavailable" onclick="setStatus('unavailable')">
+                                <i class="fas fa-circle"></i> Unavailable
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn on-leave" onclick="setStatus('on-leave')">
+                                <i class="fas fa-circle"></i> On Leave
+                            </button>
+                        </div>
+                    </div>
+                    <div class="status-note">
+                        <textarea id="statusNote" placeholder="Add a note about your availability..." rows="3"></textarea>
+                        <button class="update-note-btn" onclick="updateStatusNote()">
+                            <i class="fas fa-save"></i> Update Note
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <h4><i class="fas fa-chart-bar"></i> Today's Overview</h4>
+                    <div class="stat-item">
+                        <span class="stat-label">Today's Classes:</span>
+                        <span class="stat-value" id="todayClasses">4</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Week:</span>
+                        <span class="stat-value" id="weekClasses">18</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Subjects:</span>
+                        <span class="stat-value" id="totalSubjects">3</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Students:</span>
+                        <span class="stat-value" id="totalStudents">125</span>
+                    </div>
+                </div>
+
+                <!-- Teaching Subjects -->
+                <div class="teaching-subjects">
+                    <h4><i class="fas fa-book-open"></i> Teaching Subjects</h4>
+                    <div class="subjects-list" id="subjectsList">
+                        <!-- Subjects will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Upcoming Classes -->
+                <div class="upcoming-classes">
+                    <h4><i class="fas fa-clock"></i> Next Classes</h4>
+                    <div class="classes-list" id="classesList">
+                        <!-- Classes will be populated by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="dashboard-main">
+                <!-- View Toggle -->
+                <div class="view-controls">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="day" onclick="switchView('day')">
+                            <i class="fas fa-calendar-day"></i> Day View
+                        </button>
+                        <button class="toggle-btn" data-view="week" onclick="switchView('week')">
+                            <i class="fas fa-calendar-week"></i> Week View
+                        </button>
+                        <button class="toggle-btn" data-view="month" onclick="switchView('month')">
+                            <i class="fas fa-calendar"></i> Month View
+                        </button>
+                    </div>
+                    <div class="date-navigation">
+                        <button class="nav-btn" onclick="navigateDate(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="current-date" id="currentDate">Today, September 19, 2025</span>
+                        <button class="nav-btn" onclick="navigateDate(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="today-btn" onclick="goToToday()">Today</button>
+                    </div>
+                </div>
+
+                <!-- Schedule Display -->
+                <div class="schedule-container">
+                    <!-- Day View -->
+                    <div class="day-view view-content active" id="dayView">
+                        <div class="time-slots">
+                            <div class="time-header">
+                                <div class="date-display" id="dayViewDate">Friday, September 19, 2025</div>
+                            </div>
+                            <div class="slots-container" id="daySlots">
+                                <!-- Time slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Week View -->
+                    <div class="week-view view-content" id="weekView">
+                        <div class="week-timetable" id="weekTimetable">
+                            <!-- Week timetable will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Month View -->
+                    <div class="month-view view-content" id="monthView">
+                        <div class="month-header" id="monthHeader">
+                            <!-- Month header will be populated by JavaScript -->
+                        </div>
+                        <div class="month-grid" id="monthGrid">
+                            <!-- Month grid will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Class Details Modal -->
+        <div class="modal" id="classModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Class Details</h3>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Class details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel-class" onclick="cancelClass()">
+                        <i class="fas fa-times"></i> Cancel Class
+                    </button>
+                    <button class="btn-reschedule" onclick="rescheduleClass()">
+                        <i class="fas fa-calendar-alt"></i> Reschedule
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Update Confirmation -->
+        <div class="status-notification" id="statusNotification">
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="notificationText">Status updated successfully!</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="faculty-dashboard.js"></script>
+</body>
+</html>

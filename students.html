@@ -38,7 +38,7 @@
                 <li class="nav-item active">
                     <a href="students.html" class="nav-link">
                         <i class="fas fa-user-graduate"></i>
-                        <span>Classes</span>
+                        <span>Rooms</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -71,15 +71,15 @@
                     <p>Manage Class Room information and availability</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn primary" onclick="openAddStudentModal()">
+                    <button class="btn primary" onclick="openAddRoomModal()">
                         <i class="fas fa-plus"></i>
                         Add Class Room
                     </button>
-                    <button class="btn secondary" onclick="importStudents()">
+                    <button class="btn secondary" onclick="importRooms()">
                         <i class="fas fa-upload"></i>
                         Import Class Room
                     </button>
-                    <button class="btn secondary" onclick="exportStudents()">
+                    <button class="btn secondary" onclick="exportData()">
                         <i class="fas fa-download"></i>
                         Export Data
                     </button>
@@ -91,49 +91,52 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-building"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>1,247</h3>
-                            <p>Total Classes</p>
+                            <h3>3</h3>
+                            <p>Total Class Rooms</p>
                         </div>
                         <div class="stat-trend positive">
                             <i class="fas fa-arrow-up"></i>
                             <span>+8.2%</span>
                         </div>
                     </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
-                            <i class="fas fa-user-check"></i>
+                            <i class="fas fa-lock"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>1,189</h3>
-                            <p>Booked classes</p>
+                            <h3>2</h3>
+                            <p>Booked Class Rooms</p>
                         </div>
                         <div class="stat-trend positive">
                             <i class="fas fa-arrow-up"></i>
                             <span>+5.1%</span>
                         </div>
                     </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
-                            <i class="fas fa-graduation-cap"></i>
+                            <i class="fas fa-unlock"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>58</h3>
-                            <p>Available Classes</p>
+                            <h3>1</h3>
+                            <p>Available Class Rooms</p>
                         </div>
-                        <div class="stat-trend neutral">
-                            <i class="fas fa-minus"></i>
-                            <span>1%</span>
+                        <div class="stat-trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-1%</span>
                         </div>
                     </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
-                            <i class="fas fa-building"></i>
+                            <i class="fas fa-sitemap"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>12</h3>
+                            <h3>3</h3>
                             <p>Departments</p>
                         </div>
                         <div class="stat-trend positive">
@@ -149,24 +152,24 @@
                 <div class="search-controls">
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="studentSearch" placeholder="Search by name or class no..." onkeyup="searchStudents()">
+                        <input type="text" id="roomSearch" placeholder="Search by name or class no." onkeyup="searchRooms()">
                     </div>
                     <div class="filters">
-                        <select id="departmentFilter" onchange="filterStudents()">
+                        <select id="departmentFilter" onchange="filterRooms()">
                             <option value="">All Departments</option>
                             <option value="computer-science">Computer Science</option>
                             <option value="mathematics">Mathematics</option>
                             <option value="physics">Physics</option>
                             <option value="chemistry">Chemistry</option>
                         </select>
-                        <select id="yearFilter" onchange="filterStudents()">
+                        <select id="yearFilter" onchange="filterRooms()">
                             <option value="">All Years</option>
                             <option value="1">1st Year</option>
                             <option value="2">2nd Year</option>
                             <option value="3">3rd Year</option>
                             <option value="4">4th Year</option>
                         </select>
-                        <select id="statusFilter" onchange="filterStudents()">
+                        <select id="statusFilter" onchange="filterRooms()">
                             <option value="">All Status</option>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
@@ -178,6 +181,16 @@
 
             <!-- Students Table -->
             <section class="students-table-section">
+                <div class="table-header">
+                    <h2>All Class Rooms</h2>
+                    <div class="table-actions">
+                        <button class="btn secondary" onclick="exportRooms()">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="table-container">
                     <table class="students-table">
                         <thead>
@@ -185,7 +198,7 @@
                                 <th>
                                     <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                                 </th>
-                                <th>Class No</th>
+                                <th>Class Room No</th>
                                 <th>Time Slot</th>
                                 <th>Name</th>
                                 <th>Class</th>
@@ -196,30 +209,26 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="studentsTableBody">
-                            <!-- Table rows will be populated by JavaScript -->
+                        <tbody id="roomsTableBody">
+                            <!-- Rooms will be loaded here -->
                         </tbody>
                     </table>
                 </div>
-                
+
                 <!-- Pagination -->
                 <div class="pagination">
                     <div class="pagination-info">
-                        Showing 1-10 of 1,247 classes
+                        Showing 1-10 of 1,247 class rooms
                     </div>
                     <div class="pagination-controls">
-                        <button class="btn secondary" disabled>
+                        <button class="btn secondary" onclick="previousPage()">
                             <i class="fas fa-chevron-left"></i>
                             Previous
                         </button>
-                        <div class="page-numbers">
-                            <button class="page-btn active">1</button>
-                            <button class="page-btn">2</button>
-                            <button class="page-btn">3</button>
-                            <span>...</span>
-                            <button class="page-btn">125</button>
+                        <div class="page-numbers" id="pageNumbers">
+                            <!-- Page numbers will be loaded here -->
                         </div>
-                        <button class="btn secondary">
+                        <button class="btn secondary" onclick="nextPage()">
                             Next
                             <i class="fas fa-chevron-right"></i>
                         </button>
@@ -227,107 +236,96 @@
                 </div>
             </section>
 
-            <!-- Add Student Modal -->
-            <div class="modal large" id="addStudentModal">
+            <!-- Add Room Modal -->
+            <div class="modal large" id="addRoomModal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3>Add New Class</h3>
-                        <button class="modal-close" onclick="closeModal('addStudentModal')">
+                        <h3>Add New Class Room</h3>
+                        <button class="modal-close" onclick="closeModal('addRoomModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="addStudentForm">
+                        <form id="addRoomForm">
                             <div class="form-section">
-                                <h4>Class Information</h4>
+                                <h4>Class Room Information</h4>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="classNo">Class No *</label>
-                                        <input type="text" id="classNo" required>
+                                        <label for="roomNo">Room No *</label>
+                                        <input type="text" id="roomNo" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="name">Name *</label>
-                                        <input type="text" id="name" required>
+                                        <label for="roomCapacity">Room Capacity *</label>
+                                        <input type="number" id="roomCapacity" min="1" required>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="timeSlot">Time Slot *</label>
-                                        <input type="text" id="timeSlot" required>
+                                        <label for="roomType">Type of Room *</label>
+                                        <select id="roomType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="lab">Lab</option>
+                                            <option value="lecture-hall">Lecture Hall</option>
+                                            <option value="seminar-hall">Seminar Hall</option>
+                                            <option value="projector-room">Projector Room</option>
+                                        </select>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="class">Class *</label>
-                                        <input type="text" id="class" required>
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="classCapacity">Class Capacity *</label>
-                                        <input type="number" id="classCapacity" required min="1" max="300" placeholder="e.g., 50">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="department">Department *</label>
-                                        <select id="department" required>
-                                            <option value="">Select Department</option>
-                                            <option value="computer-science">Computer Science</option>
-                                            <option value="mathematics">Mathematics</option>
-                                            <option value="physics">Physics</option>
-                                            <option value="chemistry">Chemistry</option>
+                                    <div class="form-group" id="labTypeContainer" style="display: none;">
+                                        <label for="labType">Lab Type *</label>
+                                        <select id="labType">
+                                            <option value="">Select Lab Type</option>
+                                            <option value="physics-lab">Physics Lab</option>
+                                            <option value="chemistry-lab">Chemistry Lab</option>
+                                            <option value="biology-lab">Biology Lab</option>
+                                            <option value="computer-lab">Computer Lab</option>
+                                            <option value="geography-lab">Geography Lab</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="year">Academic Year *</label>
-                                        <select id="year" required>
-                                            <option value="">Select Year</option>
-                                            <option value="1">1st Year</option>
-                                            <option value="2">2nd Year</option>
-                                            <option value="3">3rd Year</option>
-                                            <option value="4">4th Year</option>
-                                        </select>
+                                        <label for="block">Block</label>
+                                        <input type="text" id="block">
                                     </div>
                                     <div class="form-group">
-                                        <label for="status">Status *</label>
-                                        <select id="status" required>
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                            <option value="graduated">Graduated</option>
-                                        </select>
+                                        <label for="floor">Floor</label>
+                                        <input type="text" id="floor">
                                     </div>
                                 </div>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn secondary" onclick="closeModal('addStudentModal')">Cancel</button>
-                        <button class="btn primary" onclick="addStudent()">Add Class</button>
+                        <button class="btn secondary" onclick="closeModal('addRoomModal')">Cancel</button>
+                        <button class="btn primary" onclick="addRoom()">Add Class Room</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Class Details Modal -->
-            <div class="modal large" id="studentDetailsModal">
+            <!-- Room Details Modal -->
+            <div class="modal large" id="roomDetailsModal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 id="studentDetailsTitle">Class Details</h3>
-                        <button class="modal-close" onclick="closeModal('studentDetailsModal')">
+                        <h3 id="roomDetailsTitle">Class Room Details</h3>
+                        <button class="modal-close" onclick="closeModal('roomDetailsModal')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div id="studentDetailsContent">
-                            <!-- Class details will be loaded here -->
+                        <div id="roomDetailsContent">
+                            <!-- Details will be loaded here -->
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn secondary" onclick="closeModal('studentDetailsModal')">Close</button>
-                        <button class="btn primary" onclick="editCurrentStudent()">Edit Class</button>
+                        <button class="btn secondary" onclick="closeModal('roomDetailsModal')">Close</button>
+                        <button class="btn primary" onclick="editCurrentRoom()">Edit Class Room</button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
+
+    <!-- Scripts -->
     <script src="data-manager.js"></script>
     <script src="navigation.js"></script>
     <script src="dashboard.js"></script>
