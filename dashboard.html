@@ -40,7 +40,7 @@
                 <li class="nav-item">
                     <a href="students.html" class="nav-link">
                         <i class="fas fa-user-graduate"></i>
-                        <span>Classes</span>
+                        <span>Rooms</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -77,8 +77,8 @@
                         <span id="currentDateTime"></span>
                     </div>
                     <div class="user-profile">
-                        <img src="https://via.placeholder.com/40" alt="Profile" class="profile-img">
-                        <span>Admin</span>
+                        <img src="" alt="Profile" class="profile-img">
+                        <span>Manisha</span>
                     </div>
                 </div>
             </header>
@@ -154,10 +154,27 @@
                             <i class="fas fa-plus"></i>
                             Generate New Timetable
                         </button>
-                        <button class="action-btn secondary" onclick="importData()">
-                            <i class="fas fa-upload"></i>
-                            Import Data
-                        </button>
+                        <div class="dropdown-container">
+                            <button class="action-btn secondary" onclick="toggleImportDropdown()" id="importBtn">
+                                <i class="fas fa-upload"></i>
+                                Import Data
+                                <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px;"></i>
+                            </button>
+                            <div class="dropdown-menu" id="importDropdown">
+                                <a class="dropdown-item" onclick="importTeachers()">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    Import Teachers
+                                </a>
+                                <a class="dropdown-item" onclick="importClasses()">
+                                    <i class="fas fa-user-graduate"></i>
+                                    Import Classes
+                                </a>
+                                <a class="dropdown-item" onclick="importCourses()">
+                                    <i class="fas fa-book"></i>
+                                    Import Courses
+                                </a>
+                            </div>
+                        </div>
                         <button class="action-btn secondary" onclick="exportTimetable()">
                             <i class="fas fa-download"></i>
                             Export Timetable
@@ -331,67 +348,6 @@
 
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-    <!-- Existing scripts -->
-    <script src="data-manager.js"></script>
-    <script src="navigation.js"></script>
     <script src="dashboard.js"></script>
-    <!-- Calendar initialization script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth', // Default to month view
-                headerToolbar: {
-                    left: 'prev,next', // Removed 'today' button
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                events: [
-                    {
-                        title: 'CS Lecture: Algorithms',
-                        start: '2024-09-23T10:00:00',
-                        end: '2024-09-23T11:30:00',
-                        department: 'computer-science',
-                        color: '#667eea'
-                    },
-                    {
-                        title: 'Math Tutorial: Calculus',
-                        start: '2024-09-24T14:00:00',
-                        end: '2024-09-24T15:30:00',
-                        department: 'mathematics',
-                        color: '#764ba2'
-                    },
-                    {
-                        title: 'Physics Lab',
-                        start: '2024-09-25T09:00:00',
-                        end: '2024-09-25T11:00:00',
-                        department: 'physics',
-                        color: '#38a169'
-                    },
-                    {
-                        title: 'CS Practical: Programming',
-                        start: '2024-09-26T13:00:00',
-                        end: '2024-09-26T15:00:00',
-                        department: 'computer-science',
-                        color: '#667eea'
-                    }
-                ],
-                eventClick: function(info) {
-                    alert('Event: ' + info.event.title + '\nDepartment: ' + info.event.extendedProps.department + '\nTime: ' + info.event.start.toLocaleString());
-                },
-                eventContent: function(arg) {
-                    return { html: '<div class="fc-event-title">' + arg.event.title + '</div>' };
-                },
-                height: 'auto',
-                contentHeight: 500,
-                aspectRatio: 1.35,
-                views: {
-                    timeGridWeek: { slotDuration: '00:30:00' },
-                    timeGridDay: { slotDuration: '00:30:00' }
-                }
-            });
-            calendar.render();
-        });
-    </script>
 </body>
 </html>

@@ -271,6 +271,8 @@ section h2 {
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
+    width: 100%;
+    height: 48px;
 }
 
 .action-btn.primary {
@@ -292,6 +294,55 @@ section h2 {
 .action-btn.secondary:hover {
     background: #edf2f7;
     border-color: #cbd5e0;
+}
+
+/* Dropdown styles for Import Data button */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    z-index: 1000;
+    top: 100%;
+    left: 0;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    color: #4a5568;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f7fafc;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: #f7fafc;
+    color: #2d3748;
+}
+
+.dropdown-item i {
+    margin-right: 8px;
+    width: 16px;
 }
 
 /* Recent Timetables */
@@ -418,14 +469,14 @@ section h2 {
 }
 
 .fc .fc-button.fc-button-active {
-    background: white !important; /* Theme accent color */
-    color: #2d3748 !important; /* Dark text for contrast */
+    background: white !important;
+    color: #2d3748 !important;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
 }
 
 .fc .fc-button:focus {
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5) !important; /* Subtle focus ring */
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5) !important;
 }
 
 .fc .fc-daygrid-day {
@@ -649,6 +700,59 @@ section h2 {
 .btn.secondary:hover {
     background: #edf2f7;
     border-color: #cbd5e0;
+}
+
+/* Notification Styles */
+.notification {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.notification-content i {
+    font-size: 1.2rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+    background: #f7fafc;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
 /* Responsive Design */

@@ -53,6 +53,60 @@
     gap: 1rem;
     margin-bottom: 2rem;
     align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-box .fas {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718096;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    transition: border-color 0.2s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+#departmentFilter,
+#statusFilter {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+}
+
+#departmentFilter:focus,
+#statusFilter:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+#departmentFilter option,
+#statusFilter option {
+    padding: 0.5rem;
 }
 
 /* Teachers Grid */
@@ -325,6 +379,12 @@
     
     .search-box {
         max-width: none;
+        width: 100%;
+    }
+    
+    #departmentFilter,
+    #statusFilter {
+        width: 100%;
     }
     
     .teacher-list-info {

@@ -50,16 +50,136 @@ let dashboardData = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     updateDateTime();
-    generateCalendar();
     
     // Update date/time every minute
     setInterval(updateDateTime, 60000);
+
+    // Initialize FullCalendar
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: [
+            {
+                title: 'CS Lecture: Algorithms',
+                start: '2024-09-23T10:00:00',
+                end: '2024-09-23T11:30:00',
+                department: 'computer-science',
+                color: '#667eea'
+            },
+            {
+                title: 'Math Tutorial: Calculus',
+                start: '2024-09-24T14:00:00',
+                end: '2024-09-24T15:30:00',
+                department: 'mathematics',
+                color: '#764ba2'
+            },
+            {
+                title: 'Physics Lab',
+                start: '2024-09-25T09:00:00',
+                end: '2024-09-25T11:00:00',
+                department: 'physics',
+                color: '#38a169'
+            },
+            {
+                title: 'CS Practical: Programming',
+                start: '2024-09-26T13:00:00',
+                end: '2024-09-26T15:00:00',
+                department: 'computer-science',
+                color: '#667eea'
+            }
+        ],
+        eventClick: function(info) {
+            alert('Event: ' + info.event.title + '\nDepartment: ' + info.event.extendedProps.department + '\nTime: ' + info.event.start.toLocaleString());
+        },
+        eventContent: function(arg) {
+            return { html: '<div class="fc-event-title">' + arg.event.title + '</div>' };
+        },
+        height: 'auto',
+        contentHeight: 500,
+        aspectRatio: 1.35,
+        views: {
+            timeGridWeek: { slotDuration: '00:30:00' },
+            timeGridDay: { slotDuration: '00:30:00' }
+        }
+    });
+    calendar.render();
+
+    // Dropdown functionality for Import Data
+    function toggleImportDropdown() {
+        const dropdown = document.getElementById('importDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('importDropdown');
+        const importBtn = document.getElementById('importBtn');
+        
+        if (!importBtn.contains(event.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    // Import functions
+    function importTeachers() {
+        document.getElementById('importDropdown').classList.remove('show');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv,.xlsx,.xls';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Importing teachers from:', file.name);
+                alert('Importing teachers from: ' + file.name);
+            }
+        };
+        input.click();
+    }
+
+    function importClasses() {
+        document.getElementById('importDropdown').classList.remove('show');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv,.xlsx,.xls';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Importing classes from:', file.name);
+                alert('Importing classes from: ' + file.name);
+            }
+        };
+        input.click();
+    }
+
+    function importCourses() {
+        document.getElementById('importDropdown').classList.remove('show');
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv,.xlsx,.xls';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                console.log('Importing courses from:', file.name);
+                alert('Importing courses from: ' + file.name);
+            }
+        };
+        input.click();
+    }
+
+    // Expose import functions to global scope
+    window.toggleImportDropdown = toggleImportDropdown;
+    window.importTeachers = importTeachers;
+    window.importClasses = importClasses;
+    window.importCourses = importCourses;
 });
 
 // Initialize dashboard functionality
-// Replace the problematic navigation code with this:
 function initializeDashboard() {
-    // Add sidebar toggle functionality
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
     
@@ -69,41 +189,15 @@ function initializeDashboard() {
         });
     }
 
-    // FIXED navigation functionality
-    const navLinks = document.querySelectorAll('.nav-link');
-    /*  navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            
-            // Only prevent default for # links (like #settings)
-            if (href.startsWith('#')) {
-                e.preventDefault();
-                
-                // Remove active class from all nav items
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                // Add active class to clicked item
-                this.parentElement.classList.add('active');
-                
-                // Handle navigation for # links only
-                handleNavigation(href);
-            }
-            // For .html links, let the browser navigate normally (don't prevent default)
-        });
-    });*/
-
-    // Close modals when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
         }
     });
 
-    // Add animations to dashboard elements
     animateElements();
 }
+
 // Update current date and time
 function updateDateTime() {
     const now = new Date();
@@ -122,115 +216,18 @@ function updateDateTime() {
     }
 }
 
-// Generate calendar for the week
-function generateCalendar() {
-    const calendarBody = document.getElementById('calendarBody');
-    if (!calendarBody) return;
-
-    calendarBody.innerHTML = '';
-
-    dashboardData.weekSchedule.forEach(dayData => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day';
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = dayData.date;
-        dayElement.appendChild(dayNumber);
-
-        dayData.events.forEach(event => {
-            const eventElement = document.createElement('div');
-            eventElement.className = 'calendar-event';
-            eventElement.textContent = event;
-            eventElement.title = event;
-            dayElement.appendChild(eventElement);
-        });
-
-        calendarBody.appendChild(dayElement);
-    });
-}
-
-// Handle navigation between sections
-// Handle navigation between sections (only for # links)
-function handleNavigation(section) {
-    console.log('Navigating to:', section);
-    
-    switch(section) {
-        case '#dashboard':
-            // Already on dashboard
-            break;
-        case '#settings':
-            loadSettingsSection();
-            break;
-        default:
-            console.log('Unknown section:', section);
-    }
-}
-
-// Update loadSettingsSection to show something useful
-function loadSettingsSection() {
-    showNotification('Settings panel would open here', 'info');
-    // You could open a settings modal here instead
-}
-
-// Section loading functions (placeholders)
-function loadTimetablesSection() {
-    showNotification('Timetables section would load here', 'info');
-}
-
-function loadSubjectsSection() {
-    showNotification('Subjects section would load here', 'info');
-}
-
-function loadTeachersSection() {
-    showNotification('Teachers section would load here', 'info');
-}
-
-function loadRoomsSection() {
-    showNotification('Rooms section would load here', 'info');
-}
-
-function loadSettingsSection() {
-    showNotification('Settings section would load here', 'info');
-}
-
 // Quick action functions
 function generateTimetable() {
     openModal('generateModal');
 }
 
-function importData() {
-    // Create a file input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.csv,.xlsx,.json';
-    
-    fileInput.onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            showNotification(`Importing data from ${file.name}...`, 'info');
-            // Simulate import process
-            setTimeout(() => {
-                showNotification('Data imported successfully!', 'success');
-                updateStats();
-            }, 2000);
-        }
-    };
-    
-    fileInput.click();
-}
-
 function exportTimetable() {
     showNotification('Preparing timetable export...', 'info');
-    
-    // Simulate export process
     setTimeout(() => {
-        // Create a download link
         const link = document.createElement('a');
         link.href = 'data:text/plain;charset=utf-8,Timetable Export Data';
         link.download = 'timetable-export.csv';
         link.click();
-        
         showNotification('Timetable exported successfully!', 'success');
     }, 1500);
 }
@@ -262,8 +259,6 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
-        // Reset form if it exists
         const form = modal.querySelector('form');
         if (form) {
             form.reset();
@@ -287,13 +282,9 @@ function submitGenerate() {
     };
 
     showNotification('Generating timetable...', 'info');
-    
-    // Simulate timetable generation
     setTimeout(() => {
         showNotification('Timetable generated successfully!', 'success');
         closeModal('generateModal');
-        
-        // Add new timetable to recent list
         const newTimetable = {
             id: `${data.department}-${data.semester}`,
             name: `${data.department} - ${data.semester}`,
@@ -310,11 +301,9 @@ function submitGenerate() {
 
 // Update dashboard statistics
 function updateStats() {
-    // Simulate data update
     dashboardData.stats.totalClasses += Math.floor(Math.random() * 3);
     dashboardData.stats.totalSubjects += Math.floor(Math.random() * 2);
     
-    // Update DOM
     document.getElementById('totalClasses').textContent = dashboardData.stats.totalClasses;
     document.getElementById('totalSubjects').textContent = dashboardData.stats.totalSubjects;
     document.getElementById('totalTeachers').textContent = dashboardData.stats.totalTeachers;
@@ -356,11 +345,9 @@ function updateRecentTimetables() {
 
 // Notification system
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
 
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -373,7 +360,6 @@ function showNotification(message, type = 'info') {
         </button>
     `;
 
-    // Add styles
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -391,10 +377,8 @@ function showNotification(message, type = 'info') {
         animation: slideInRight 0.3s ease;
     `;
 
-    // Add to DOM
     document.body.appendChild(notification);
 
-    // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOutRight 0.3s ease';
@@ -423,7 +407,6 @@ function getNotificationColor(type) {
 
 // Animation functions
 function animateElements() {
-    // Add fade-in animation to dashboard elements
     const elements = document.querySelectorAll('.stat-card, .action-btn, .timetable-item, .activity-item');
     elements.forEach((element, index) => {
         element.style.opacity = '0';
@@ -436,63 +419,6 @@ function animateElements() {
         }, index * 100);
     });
 }
-
-// Add CSS for notifications
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    .notification {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex: 1;
-    }
-    
-    .notification-content i {
-        font-size: 1.2rem;
-    }
-    
-    .notification-close {
-        background: none;
-        border: none;
-        font-size: 1rem;
-        color: #718096;
-        cursor: pointer;
-        padding: 0.25rem;
-        border-radius: 4px;
-        transition: background-color 0.2s ease;
-    }
-    
-    .notification-close:hover {
-        background: #f7fafc;
-    }
-    
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(notificationStyles);
 
 // Utility functions
 function formatDate(date) {
@@ -514,7 +440,6 @@ function formatTime(time) {
 // Export functions for external use
 window.dashboardAPI = {
     generateTimetable,
-    importData,
     exportTimetable,
     viewTimetable,
     editTimetable,
@@ -524,7 +449,6 @@ window.dashboardAPI = {
 
 // Handle window resize for responsive behavior
 window.addEventListener('resize', function() {
-    // Close sidebar on mobile when window is resized
     if (window.innerWidth > 768) {
         const sidebar = document.querySelector('.sidebar');
         sidebar.classList.remove('active');
@@ -533,13 +457,11 @@ window.addEventListener('resize', function() {
 
 // Add keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + N: Generate new timetable
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
         generateTimetable();
     }
     
-    // Escape: Close modals
     if (e.key === 'Escape') {
         const activeModal = document.querySelector('.modal.active');
         if (activeModal) {

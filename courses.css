@@ -10,6 +10,90 @@
     margin-bottom: 1.5rem;
 }
 
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.search-controls {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box .fas {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718096;
+    font-size: 1rem;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+#departmentFilter,
+#levelFilter,
+#statusFilter {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #2d3748;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
+
+#departmentFilter:focus,
+#levelFilter:focus,
+#statusFilter:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+#departmentFilter option,
+#levelFilter option,
+#statusFilter option {
+    padding: 0.5rem;
+    background: white;
+    color: #2d3748;
+}
+
 .categories-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -22,8 +106,9 @@
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
     border-left: 4px solid #667eea;
+    overflow: hidden;
 }
 
 .category-card:hover {
@@ -52,12 +137,14 @@
     font-weight: 600;
     color: #2d3748;
     margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
 .category-info p {
     color: #4a5568;
     margin-bottom: 0.75rem;
     font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 .category-stats {
@@ -66,12 +153,12 @@
     margin-bottom: 1rem;
 }
 
-/* Courses Table */
 .courses-table-section {
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    margin-bottom: 2rem;
 }
 
 .table-header {
@@ -162,196 +249,106 @@
     border-radius: 4px;
 }
 
-/* Course Details */
-.course-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-}
-
-.course-overview {
-    background: #f7fafc;
-    padding: 1.5rem;
-    border-radius: 8px;
-}
-
-.course-overview h4 {
-    color: #2d3748;
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.detail-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.detail-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-
-.detail-label {
-    color: #718096;
-    font-weight: 500;
-}
-
-.detail-value {
-    color: #2d3748;
-    font-weight: 500;
-    text-align: right;
-}
-
-.course-schedule {
-    background: #f7fafc;
-    padding: 1.5rem;
-    border-radius: 8px;
-}
-
-.schedule-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: white;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    border-left: 3px solid #667eea;
-}
-
-.schedule-time {
-    font-family: 'Courier New', monospace;
-    font-weight: 600;
-    color: #667eea;
-    min-width: 100px;
-}
-
-.schedule-days {
-    color: #4a5568;
-    font-weight: 500;
-}
-
-.schedule-room {
-    margin-left: auto;
-    color: #718096;
-    font-size: 0.9rem;
-}
-
-/* Enrollment management */
-.enrollment-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #e2e8f0;
-}
-
-.enrollment-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.enrollment-stat {
-    text-align: center;
-    padding: 1rem;
-    background: #f7fafc;
-    border-radius: 8px;
-}
-
-.enrollment-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2d3748;
-}
-
-.enrollment-label {
-    color: #718096;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.student-list {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-}
-
-.student-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.student-item:last-child {
-    border-bottom: none;
-}
-
-.student-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.student-info {
-    flex: 1;
-}
-
-.student-name {
-    font-weight: 500;
-    color: #2d3748;
-}
-
-.student-id {
-    color: #718096;
-    font-size: 0.85rem;
-}
-
-.enrollment-status {
+.status-badge {
     padding: 0.25rem 0.5rem;
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 600;
 }
 
-.enrollment-status.enrolled {
+.status-badge.active {
     background: rgba(56, 161, 105, 0.1);
     color: #38a169;
 }
 
-.enrollment-status.waitlist {
-    background: rgba(237, 137, 54, 0.1);
-    color: #ed8936;
+.status-badge.inactive {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
 }
 
-/* Prerequisites display */
-.prerequisites {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.prerequisite-tag {
-    background: #edf2f7;
+.action-buttons .btn-icon {
+    background: none;
+    border: none;
     color: #4a5568;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.action-buttons .btn-icon:hover {
+    color: #667eea;
+}
+
+.action-buttons .btn-icon.danger {
+    color: #ef4444;
+}
+
+.action-buttons .btn-icon.danger:hover {
+    color: #dc2626;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: #f7fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 12px 12px;
+}
+
+.pagination-info {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.page-numbers .page-btn {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: white;
+    color: #2d3748;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-numbers .page-btn.active,
+.page-numbers .page-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
     .categories-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .search-controls {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .search-box {
+        width: 100%;
+        max-width: none;
+    }
+    
+    .filters {
+        width: 100%;
+        gap: 0.5rem;
+    }
+    
+    #departmentFilter,
+    #levelFilter,
+    #statusFilter {
+        width: 100%;
     }
     
     .course-details {
@@ -366,5 +363,21 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .table-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .schedule-item {
+        padding: 0.5rem;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 1rem;
     }
 }

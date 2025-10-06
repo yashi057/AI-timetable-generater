@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignIn/Signup</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
+        .label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            color: #394a56;
+            margin: 20px 0;
+        }
+
+        .toggle {
+            isolation: isolate;
+            position: relative;
+            height: 30px;
+            width: 60px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: -8px -4px 8px 0px #ffffff,
+                        8px 4px 12px 0px #d1d9e6,
+                        4px 4px 4px 0px #d1d9e6 inset,
+                        -4px -4px 4px 0px #ffffff inset;
+        }
+
+        .toggle-state {
+            display: none;
+        }
+
+        .indicator {
+            height: 100%;
+            width: 200%;
+            background: #ecf0f3;
+            border-radius: 15px;
+            transform: translate3d(-75%, 0, 0);
+            transition: transform 0.4s cubic-bezier(0.85, 0.05, 0.18, 1.35);
+            box-shadow: -8px -4px 8px 0px #ffffff,
+                        0 4px 15px #e8a595;
+        }
+
+        .toggle-state:checked ~ .indicator {
+            transform: translate3d(25%, 0, 0);
+        }
+
+        .flip-container {
+            perspective: 1000px;
+            max-width: 350px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .flipper {
+            position: relative;
+            width: 100%;
+            transition: transform 0.6s ease-in-out;
+            transform-style: preserve-3d;
+        }
+
+        .SignIn-container, .signup-container {
+            position: absolute;
+            width: 100%;
+            backface-visibility: hidden;
+            background: linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(244, 247, 251) 100%);
+            border-radius: 40px;
+            padding: 25px 35px;
+            border: 5px solid rgb(255, 255, 255);
+            box-shadow: 0 4px 15px #e8a595;
+            box-sizing: border-box;
+        }
+
+        .signup-container {
+            transform: rotateY(180deg);
+        }
+
+        .flipper.flip {
+            transform: rotateY(180deg);
+        }
+
+        .heading {
+            text-align: center;
+            font-weight: 900;
+            font-size: 30px;
+            color: #e8a595;
+            margin-bottom: 20px;
+        }
+
+        .form {
+            margin-top: 20px;
+        }
+
+        .form .input {
+            width: 100%;
+            background: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 20px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px #e8a595;
+            border-inline: 2px solid transparent;
+            box-sizing: border-box;
+        }
+
+        .form .input::-moz-placeholder {
+            color: rgb(170, 170, 170);
+        }
+
+        .form .input::placeholder {
+            color: rgb(170, 170, 170);
+        }
+
+        .form .input:focus {
+            outline: none;
+            border-inline: 2px solid #e8a595;
+        }
+
+        .form .forgot-password {
+            display: block;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+
+        .form .forgot-password a {
+            font-size: 11px;
+            color: #0099ff;
+            text-decoration: none;
+        }
+
+        .form .SignIn-button, .form .signup-button {
+            display: block;
+            width: 100%;
+            font-weight: bold;
+            background: linear-gradient(135deg, #fae1dd, #e8a595);
+            color: white;
+            padding: 15px;
+            margin: 20px auto;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px #e8a595;
+            border: none;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .form .SignIn-button:hover, .form .signup-button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px #e8a595;
+        }
+
+        .form .SignIn-button:active, .form .signup-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 15px #e8a595;
+        }
+
+        .social-account-container {
+            margin-top: 25px;
+        }
+
+        .social-account-container .title {
+            display: block;
+            text-align: center;
+            font-size: 10px;
+            color: rgb(170, 170, 170);
+        }
+
+        .social-accounts {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .social-accounts .social-button {
+            background: linear-gradient(45deg, rgb(0, 0, 0) 0%, rgb(112, 112, 112) 100%);
+            border: 5px solid white;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            aspect-ratio: 1;
+            display: grid;
+            place-content: center;
+            box-shadow: 0 4px 15px #e8a595;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .social-accounts .social-button .svg {
+            fill: white;
+            margin: auto;
+        }
+
+        .social-accounts .social-button:hover {
+            transform: scale(1.2);
+        }
+
+        .social-accounts .social-button:active {
+            transform: scale(0.9);
+        }
+
+        .agreement {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .agreement a {
+            text-decoration: none;
+            color: #0099ff;
+            font-size: 9px;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span>SignIn</span>
+        <label class="label">
+            <div class="toggle">
+                <input class="toggle-state" type="checkbox" name="check" value="check" id="toggleSwitch">
+                <div class="indicator"></div>
+            </div>
+        </label>
+        <span>Signup</span>
+    </div>
+    <div class="flip-container">
+        <div class="flipper" id="flipper">
+            <div class="SignIn-container">
+                <div class="heading">Sign In</div>
+                <form action="" class="form">
+                    <input required class="input" type="email" name="email" id="email" placeholder="E-mail">
+                    <input required class="input" type="password" name="password" id="password" placeholder="Password">
+                    <span class="forgot-password"><a href="#">Forgot Password?</a></span>
+                    <input class="SignIn-button" type="submit" value="Sign In">
+                </form>
+
+                <div class="social-account-container">
+                    <span class="title">Or Sign in with</span>
+                    <div class="social-accounts">
+                        <button class="social-button google">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 488 512">
+                                <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-button apple">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512">
+                                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-button twitter">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                                <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <span class="agreement"><a href="#">Learn user licence agreement</a></span>
+            </div>
+            <div class="signup-container">
+                <div class="heading">Sign Up</div>
+                <form action="" class="form">
+                    <input required class="input" type="text" name="username" id="username" placeholder="Username">
+                    <input required class="input" type="email" name="email" id="signup-email" placeholder="E-mail">
+                    <input required class="input" type="password" name="password" id="signup-password" placeholder="Password">
+                    <input required class="input" type="password" name="confirm-password" id="confirm-password" placeholder="Confirm Password">
+                    <input class="signup-button" type="submit" value="Sign Up">
+                </form>
+                <div class="social-account-container">
+                    <span class="title">Or Sign up with</span>
+                    <div class="social-accounts">
+                        <button class="social-button google">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 488 512">
+                                <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-button apple">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512">
+                                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"></path>
+                            </svg>
+                        </button>
+                        <button class="social-button twitter">
+                            <svg class="svg" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
+                                <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <span class="agreement"><a href="#">Learn user licence agreement</a></span>
+            </div>
+        </div>
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Create message div for success/error feedback
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'message';
+    messageDiv.style.margin = '20px';
+    messageDiv.style.fontFamily = 'Arial, sans-serif';
+    document.body.appendChild(messageDiv);
+
+    // Select forms and toggle elements
+    const SignInForm = document.querySelector('.SignIn-container .form');
+    const signupForm = document.querySelector('.signup-container .form');
+    const toggleCheckbox = document.querySelector('.toggle-state');
+    const SignInHeading = document.querySelector('.SignIn-container .heading');
+    const signupHeading = document.querySelector('.signup-container .heading');
+    const SignInButton = document.querySelector('.SignIn-button');
+    const signupButton = document.querySelector('.signup-button');
+    const flipper = document.getElementById('flipper');
+    const SignInContainer = document.querySelector('.SignIn-container');
+    const signupContainer = document.querySelector('.signup-container');
+    const toggleContainer = document.querySelector('div[style="display: flex; align-items: center; gap: 10px;"]');
+
+    // Function to update form headings and buttons based on toggle state
+    function updateFormMode() {
+        const isSignup = toggleCheckbox.checked;
+        SignInHeading.textContent = isSignup ? 'Sign Up' : 'Sign In';
+        signupHeading.textContent = isSignup ? 'Sign Up' : 'Sign In';
+        SignInButton.value = isSignup ? 'Sign Up' : 'Sign In';
+        signupButton.value = isSignup ? 'Sign Up' : 'Sign In';
+    }
+
+    // Initialize form mode
+    updateFormMode();
+
+    // Toggle event listener
+    toggleCheckbox.addEventListener('change', () => {
+        updateFormMode();
+        flipper.classList.toggle('flip');
+        adjustFlipperHeight();
+    });
+
+    // Handle SignIn form submission (dynamic based on toggle)
+    SignInForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(SignInForm);
+        const isSignup = toggleCheckbox.checked;
+        const data = isSignup
+            ? {
+                  username: formData.get('username') || 'default_admin',
+                  email: formData.get('email'),
+                  password: formData.get('password')
+              }
+            : {
+                  email: formData.get('email'),
+                  password: formData.get('password')
+              };
+
+        // Basic validation
+        if (!data.email || !data.email.includes('@')) {
+            messageDiv.textContent = 'Please enter a valid email';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        if (!data.password || data.password.length < 6) {
+            messageDiv.textContent = 'Password must be at least 6 characters';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        if (isSignup && !data.username) {
+            messageDiv.textContent = 'Please enter a username';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        if (isSignup) {
+            messageDiv.textContent = 'You are successfully signed up';
+            messageDiv.style.color = 'green';
+            toggleCheckbox.checked = false; // Switch to Sign In mode
+            updateFormMode();
+            flipper.classList.remove('flip');
+            adjustFlipperHeight();
+            SignInForm.reset();
+        } else {
+            window.location.href = 'student-dashboard.html'; // Redirect to dashboard
+        }
+    });
+
+    // Handle signup form submission
+    signupForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(signupForm);
+        if (formData.get('password') !== formData.get('confirm-password')) {
+            messageDiv.textContent = 'Error: Passwords do not match';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        const data = {
+            username: formData.get('username'),
+            email: formData.get('email'),
+            password: formData.get('password')
+        };
+
+        // Basic validation
+        if (!data.email || !data.email.includes('@')) {
+            messageDiv.textContent = 'Please enter a valid email';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        if (!data.password || data.password.length < 6) {
+            messageDiv.textContent = 'Password must be at least 6 characters';
+            messageDiv.style.color = 'red';
+            return;
+        }
+        if (!data.username) {
+            messageDiv.textContent = 'Please enter a username';
+            messageDiv.style.color = 'red';
+            return;
+        }
+
+        messageDiv.textContent = 'You are successfully signed up';
+        messageDiv.style.color = 'green';
+        toggleCheckbox.checked = false; // Switch to Sign In mode
+        updateFormMode();
+        flipper.classList.remove('flip');
+        adjustFlipperHeight();
+        signupForm.reset();
+    });
+
+    // Reset button
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = 'Reset Forms';
+    resetBtn.id = 'reset-btn';
+    resetBtn.style.margin = '10px';
+    resetBtn.style.padding = '10px 20px';
+    resetBtn.style.background = '#f7fafc';
+    resetBtn.style.color = 'white';
+    resetBtn.style.border = 'none';
+    resetBtn.style.borderRadius = '20px';
+    resetBtn.style.cursor = 'pointer';
+    document.body.appendChild(resetBtn);
+    resetBtn.addEventListener('click', () => {
+        SignInForm.reset();
+        signupForm.reset();
+        messageDiv.textContent = '';
+        toggleCheckbox.checked = false;
+        updateFormMode();
+        flipper.classList.remove('flip');
+        adjustFlipperHeight();
+    });
+
+    // Flipper height adjustment
+    function adjustFlipperHeight() {
+        const SignInHeight = SignInContainer.offsetHeight;
+        const signupHeight = signupContainer.offsetHeight;
+        const maxHeight = Math.max(SignInHeight, signupHeight);
+        flipper.style.height = `${maxHeight}px`;
+    }
+
+    window.addEventListener('load', adjustFlipperHeight);
+    window.addEventListener('resize', adjustFlipperHeight);
+});
+</script>
+</body>
+</html>
