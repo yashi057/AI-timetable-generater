@@ -1,0 +1,2071 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Timetable Dashboard</title>
+<!--    <link rel="stylesheet" href="student-dashboard.css">-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fae1dd 0%, #f8d7da 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.dashboard-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.dashboard-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(250, 225, 221, 0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header h1 {
+    color: #4a5568;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.dashboard-header h1 i {
+    color: #fae1dd;
+    margin-right: 0.5rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.welcome-text {
+    color: #4a5568;
+    font-size: 1rem;
+}
+
+.user-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-export, .btn-sync {
+    padding: 0.5rem 1rem;
+    background: #fae1dd;
+    color: #5a4037;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+.btn-export:hover, .btn-sync:hover {
+    background: #f4d6d0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    gap: 2rem;
+    width: 100%;
+    min-height: calc(100vh - 100px);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: fit-content;
+}
+
+.student-card, .quick-stats, .opted-subjects, .upcoming-events {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(250, 225, 221, 0.2);
+}
+
+.student-card {
+    text-align: center;
+}
+
+.student-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #fae1dd, #f8d7da);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    color: #5a4037;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+.student-details h3 {
+    color: #2d3748;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.student-details p {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.quick-stats h4, .opted-subjects h4, .upcoming-events h4 {
+    color: #2d3748;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-stats h4 i {
+    color: #fae1dd;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f7fafc;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    color: #e8a595;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Enhanced Subject Item Hover Animation */
+.subject-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #fef8f7;
+    border-radius: 8px;
+    border-left: 4px solid;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.subject-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(250, 225, 221, 0.4), transparent);
+    transition: left 0.5s ease;
+}
+
+.subject-item:hover::before {
+    left: 100%;
+}
+
+.subject-item:hover {
+    transform: translateX(8px) translateY(-2px);
+    box-shadow:
+        0 8px 25px rgba(255, 255, 255, 0.5),
+        0 4px 15px rgba(250, 225, 221, 0.3);
+    background: linear-gradient(135deg, #fef8f7, #fae1dd);
+    border-left-width: 6px;
+}
+
+.subject-item:active {
+    transform: translateX(6px) translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.subject-code {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.subject-item:hover .subject-code {
+    color: #5a4037;
+}
+
+.subject-name {
+    color: #4a5568;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.subject-item:hover .subject-name {
+    color: #6d4c41;
+}
+
+.subject-credits {
+    margin-left: auto;
+    background: #fae1dd;
+    color: #5a4037;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.subject-item:hover .subject-credits {
+    background: #f4d6d0;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #fff5f5;
+    border-radius: 8px;
+    border-left: 4px solid #f8d7da;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.event-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+}
+
+.event-time {
+    color: #d69e2e;
+    font-weight: 600;
+    font-size: 0.8rem;
+    min-width: 60px;
+}
+
+.event-details {
+    margin-left: 0.75rem;
+}
+
+.event-title {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.event-type {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+/* Dashboard Main */
+.dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+.view-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.4);
+}
+
+.view-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toggle-btn {
+    padding: 0.75rem 1rem;
+    background: #fef8f7;
+    border: 1px solid #f8d7da;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.toggle-btn.active, .toggle-btn:hover {
+    background: #fae1dd;
+    color: #5a4037;
+    border-color: #fae1dd;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-btn, .today-btn {
+    padding: 0.5rem;
+    background: #fef8f7;
+    border: 1px solid #f8d7da;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.nav-btn:hover, .today-btn:hover {
+    background: #f8d7da;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+.current-date {
+    font-weight: 600;
+    color: #2d3748;
+    min-width: 200px;
+    text-align: center;
+}
+
+.calendar-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.4);
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+}
+
+.view-content {
+    display: none;
+    height: 100%;
+}
+
+.view-content.active {
+    display: block;
+}
+
+/* Day View */
+.day-view {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.time-header {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.date-display {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.slots-container {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 1px;
+    background: #f8d7da;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.time-slot {
+    display: contents;
+}
+
+.time-label {
+    background: #fef8f7;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #4a5568;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slot-content {
+    background: white;
+    padding: 1rem;
+    min-height: 60px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.slot-content:hover {
+    background: #fef8f7;
+}
+
+.slot-content.has-class {
+    background: linear-gradient(135deg, #fae1dd, #f8d7da);
+    color: #5a4037;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+.slot-content.has-class:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+}
+
+.class-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.class-subject {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.class-details {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.class-room {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+}
+
+/* Fixed Week View */
+.week-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Single integrated week grid with header row */
+.week-timetable {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    grid-template-rows: auto repeat(12, 1fr);
+    gap: 1px;
+    background: #f8d7da;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Empty top-left corner */
+.week-corner {
+    background: #fef8f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 1rem 0.5rem;
+}
+
+/* Day headers in first row */
+.week-day-header {
+    background: #fae1dd;
+    color: #5a4037;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Time labels in first column */
+.week-time-slot {
+    background: #fef8f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 0 0.5rem;
+}
+
+/* Class slots */
+.week-day-slot {
+    background: white;
+    padding: 0.5rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.week-day-slot:hover {
+    background: #fef8f7;
+}
+
+.week-day-slot.has-class {
+    background: linear-gradient(135deg, #fae1dd, #f8d7da);
+    color: #5a4037;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.week-day-slot.has-class:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+.week-class-subject {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.week-class-room {
+    font-size: 0.7rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+    text-align: center;
+}
+
+/* Month View */
+.month-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.month-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: #f8d7da;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    margin-bottom: 1px;
+}
+
+.month-day-header {
+    background: #fae1dd;
+    color: #5a4037;
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.month-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 1px;
+    background: #f8d7da;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+}
+
+.month-day {
+    background: white;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.month-day:hover {
+    background: #fef8f7;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
+}
+
+.month-day.other-month {
+    background: #fef8f7;
+    color: #a0aec0;
+}
+
+.month-day.today {
+    background: #fff5f5;
+    border: 2px solid #fae1dd;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+.month-day-number {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.month-day.other-month .month-day-number {
+    color: #a0aec0;
+}
+
+.month-class-indicator {
+    width: 6px;
+    height: 6px;
+    background: #fae1dd;
+    border-radius: 50%;
+    margin: 1px;
+    box-shadow: 0 1px 3px rgba(255, 255, 255, 0.3);
+}
+
+.month-classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: auto;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(255, 255, 255, 0.5);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #fae1dd, #f8d7da);
+    color: #5a4037;
+    padding: 1.5rem;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: #5a4037;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.close-modal:hover {
+    background: rgba(90, 64, 55, 0.1);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8d7da;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.detail-value {
+    color: #2d3748;
+}
+
+/* Subject Color Classes */
+.subject-math { border-left-color: #e8a595; }
+.subject-physics { border-left-color: #f4c2a1; }
+.subject-chemistry { border-left-color: #d4c5b9; }
+.subject-biology { border-left-color: #f2cc8f; }
+.subject-computer { border-left-color: #fae1dd; }
+.subject-english { border-left-color: #f8d7da; }
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-content {
+        padding: 1rem;
+    }
+
+    .sidebar {
+        width: 250px;
+    }
+
+    .calendar-container {
+        height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+        min-height: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        order: 2;
+    }
+
+    .dashboard-main {
+        order: 1;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .view-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .slots-container {
+        grid-template-columns: 60px 1fr;
+    }
+
+    .week-timetable {
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+
+    .calendar-container {
+        height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 1rem;
+    }
+
+    .user-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .view-toggle {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .toggle-btn {
+        width: 100%;
+    }
+
+    .date-navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .calendar-container {
+        height: 350px;
+    }
+
+    .week-timetable {
+        grid-template-columns: 50px repeat(7, 1fr);
+    }
+}
+
+/* Loading animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.subject-item, .event-item {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.subject-item:nth-child(1) { animation-delay: 0.1s; }
+.subject-item:nth-child(2) { animation-delay: 0.2s; }
+.subject-item:nth-child(3) { animation-delay: 0.3s; }
+.subject-item:nth-child(4) { animation-delay: 0.4s; }
+.subject-item:nth-child(5) { animation-delay: 0.5s; }
+.subject-item:nth-child(6) { animation-delay: 0.6s; }
+
+/* Shimmer effect for subject items */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.subject-item:hover {
+    background-image:
+        linear-gradient(
+            90deg,
+            #fef8f7 0px,
+            rgba(250, 225, 221, 0.8) 40px,
+            rgba(250, 225, 221, 0.4) 80px,
+            #fef8f7 120px
+        );
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: shimmer 2s infinite;
+}
+
+</style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-calendar-alt"></i> My Timetable</h1>
+                <div class="user-info">
+                    <span class="welcome-text"><strong id="studentName"></strong></span>
+                    <div class="user-actions">
+                        <button class="btn-export" onclick="exportTimetable()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn-sync" onclick="syncCalendar()">
+                            <i class="fas fa-sync"></i> Sync
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Student Info Card -->
+                <div class="student-card">
+                    <div class="student-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="student-details">
+                        <h3 id="studentID">STU001</h3>
+                        <p id="studentClass">Computer Science - Year 3</p>
+                        <p id="studentSemester">Semester 6</p>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <h4><i class="fas fa-chart-bar"></i> Quick Stats</h4>
+                    <div class="stat-item">
+                        <span class="stat-label">Today's Classes:</span>
+                        <span class="stat-value" id="todayClasses">5</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Week:</span>
+                        <span class="stat-value" id="weekClasses">23</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Credits:</span>
+                        <span class="stat-value" id="totalCredits">18</span>
+                    </div>
+                </div>
+
+                <!-- Opted Subjects -->
+                <div class="opted-subjects">
+                    <h4><i class="fas fa-book"></i> My Subjects</h4>
+                    <div class="subjects-list" id="subjectsList">
+                        <!-- Subjects will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div class="upcoming-events">
+                    <h4><i class="fas fa-bell"></i> Upcoming Events</h4>
+                    <div class="events-list" id="eventsList">
+                        <!-- Events will be populated by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="dashboard-main">
+                <!-- View Toggle -->
+                <div class="view-controls">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="day" onclick="switchView('day')">
+                            <i class="fas fa-calendar-day"></i> Day View
+                        </button>
+                        <button class="toggle-btn" data-view="week" onclick="switchView('week')">
+                            <i class="fas fa-calendar-week"></i> Week View
+                        </button>
+                        <button class="toggle-btn" data-view="month" onclick="switchView('month')">
+                            <i class="fas fa-calendar"></i> Month View
+                        </button>
+                    </div>
+                    <div class="date-navigation">
+                        <button class="nav-btn" onclick="navigateDate(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="current-date" id="currentDate">Today, September 19, 2025</span>
+                        <button class="nav-btn" onclick="navigateDate(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="today-btn" onclick="goToToday()">Today</button>
+                    </div>
+                </div>
+
+                <!-- Calendar/Timetable Display -->
+                <div class="calendar-container">
+                    <!-- Day View -->
+                    <div class="day-view view-content active" id="dayView">
+                        <div class="time-slots">
+                            <div class="time-header">
+                                <div class="date-display" id="dayViewDate">Friday, September 19, 2025</div>
+                            </div>
+                            <div class="slots-container" id="daySlots">
+                                <!-- Time slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Week View -->
+                    <div class="week-view view-content" id="weekView">
+                        <div class="week-timetable" id="weekTimetable">
+                            <!-- Week timetable will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Month View -->
+                    <div class="month-view view-content" id="monthView">
+                        <div class="month-header" id="monthHeader">
+                            <!-- Month header will be populated by JavaScript -->
+                        </div>
+                        <div class="month-grid" id="monthGrid">
+                            <!-- Month grid will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Class Details Modal -->
+        <div class="modal" id="classModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Class Details</h3>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Class details will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+
+
+
+
+    // Dashboard JavaScript functionality
+
+// Global variables
+let currentUser = {
+    name: 'Admin',
+    role: 'Administrator',
+    avatar: 'https://via.placeholder.com/40'
+};
+
+let dashboardData = {
+    stats: {
+        totalClasses: 24,
+        totalSubjects: 12,
+        totalTeachers: 18,
+        totalRooms: 15
+    },
+    recentTimetables: [
+        {
+            id: 'cs-fall-2024',
+            name: 'Computer Science - Fall 2024',
+            department: 'Computer Science',
+            created: '2024-09-15',
+            status: 'completed'
+        },
+        {
+            id: 'math-fall-2024',
+            name: 'Mathematics - Fall 2024',
+            department: 'Mathematics',
+            created: '2024-09-12',
+            status: 'in-progress'
+        },
+        {
+            id: 'physics-fall-2024',
+            name: 'Physics - Fall 2024',
+            department: 'Physics',
+            created: '2024-09-10',
+            status: 'pending'
+        }
+    ],
+    weekSchedule: [
+        { day: 'Monday', date: 16, events: ['CS101 - 9:00', 'MATH201 - 11:00'] },
+        { day: 'Tuesday', date: 17, events: ['PHY101 - 10:00', 'CS201 - 14:00'] },
+        { day: 'Wednesday', date: 18, events: ['MATH101 - 9:00', 'CS301 - 15:00'] },
+        { day: 'Thursday', date: 19, events: ['PHY201 - 11:00', 'MATH301 - 13:00'] },
+        { day: 'Friday', date: 20, events: ['CS401 - 9:00', 'LAB - 14:00'] }
+    ]
+};
+
+// Initialize dashboard when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboardUI();
+    updateDateTime();
+    generateCalendar();
+
+    // Update date/time every minute
+    setInterval(updateDateTime, 60000);
+});
+
+// Initialize dashboard functionality
+// Replace the problematic navigation code with this:
+function initializeDashboardUI() {
+    // Add sidebar toggle functionality
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    // FIXED navigation functionality
+    const navLinks = document.querySelectorAll('.nav-link');
+    /*  navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+
+            // Only prevent default for # links (like #settings)
+            if (href.startsWith('#')) {
+                e.preventDefault();
+
+                // Remove active class from all nav items
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Add active class to clicked item
+                this.parentElement.classList.add('active');
+
+                // Handle navigation for # links only
+                handleNavigation(href);
+            }
+            // For .html links, let the browser navigate normally (don't prevent default)
+        });
+    });*/
+
+    // Close modals when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target.id);
+        }
+    });
+
+    // Add animations to dashboard elements
+    animateElements();
+}
+// Update current date and time
+function updateDateTime() {
+    const now = new Date();
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+
+    const dateTimeElement = document.getElementById('currentDateTime');
+    if (dateTimeElement) {
+        dateTimeElement.textContent = now.toLocaleDateString('en-US', options);
+    }
+}
+
+// Generate calendar for the week
+function generateCalendar() {
+    const calendarBody = document.getElementById('calendarBody');
+    if (!calendarBody) return;
+
+    calendarBody.innerHTML = '';
+
+    dashboardData.weekSchedule.forEach(dayData => {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = dayData.date;
+        dayElement.appendChild(dayNumber);
+
+        dayData.events.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'calendar-event';
+            eventElement.textContent = event;
+            eventElement.title = event;
+            dayElement.appendChild(eventElement);
+        });
+
+        calendarBody.appendChild(dayElement);
+    });
+}
+
+// Handle navigation between sections
+// Handle navigation between sections (only for # links)
+function handleNavigation(section) {
+    console.log('Navigating to:', section);
+
+    switch(section) {
+        case '#dashboard':
+            // Already on dashboard
+            break;
+        case '#settings':
+            loadSettingsSection();
+            break;
+        default:
+            console.log('Unknown section:', section);
+    }
+}
+
+// Update loadSettingsSection to show something useful
+function loadSettingsSection() {
+    showNotification('Settings panel would open here', 'info');
+    // You could open a settings modal here instead
+}
+
+// Section loading functions (placeholders)
+function loadTimetablesSection() {
+    showNotification('Timetables section would load here', 'info');
+}
+
+function loadSubjectsSection() {
+    showNotification('Subjects section would load here', 'info');
+}
+
+function loadTeachersSection() {
+    showNotification('Teachers section would load here', 'info');
+}
+
+function loadRoomsSection() {
+    showNotification('Rooms section would load here', 'info');
+}
+
+function loadSettingsSection() {
+    showNotification('Settings section would load here', 'info');
+}
+
+// Quick action functions
+function generateTimetable() {
+    openModal('generateModal');
+}
+
+function importData() {
+    // Create a file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,.xlsx,.json';
+
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            showNotification(`Importing data from ${file.name}...`, 'info');
+            // Simulate import process
+            setTimeout(() => {
+                showNotification('Data imported successfully!', 'success');
+                updateStats();
+            }, 2000);
+        }
+    };
+
+    fileInput.click();
+}
+
+function exportTimetable() {
+    showNotification('Preparing timetable export...', 'info');
+
+    // Simulate export process
+    setTimeout(() => {
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = 'data:text/plain;charset=utf-8,Timetable Export Data';
+        link.download = 'timetable-export.csv';
+        link.click();
+
+        showNotification('Timetable exported successfully!', 'success');
+    }, 1500);
+}
+
+function openSettings() {
+    showNotification('Settings panel would open here', 'info');
+}
+
+// Timetable management functions
+function viewTimetable(timetableId) {
+    showNotification(`Viewing timetable: ${timetableId}`, 'info');
+}
+
+function editTimetable(timetableId) {
+    showNotification(`Editing timetable: ${timetableId}`, 'info');
+}
+
+// Modal functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+
+        // Reset form if it exists
+        const form = modal.querySelector('form');
+        if (form) {
+            form.reset();
+        }
+    }
+}
+
+// Form submission functions
+function submitGenerate() {
+    const form = document.getElementById('generateForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const formData = new FormData(form);
+    const data = {
+        semester: formData.get('semester'),
+        department: formData.get('department'),
+        timeSlots: formData.get('timeSlots')
+    };
+
+    showNotification('Generating timetable...', 'info');
+
+    // Simulate timetable generation
+    setTimeout(() => {
+        showNotification('Timetable generated successfully!', 'success');
+        closeModal('generateModal');
+
+        // Add new timetable to recent list
+        const newTimetable = {
+            id: `${data.department}-${data.semester}`,
+            name: `${data.department} - ${data.semester}`,
+            department: data.department,
+            created: new Date().toISOString().split('T')[0],
+            status: 'completed'
+        };
+
+        dashboardData.recentTimetables.unshift(newTimetable);
+        updateRecentTimetables();
+        updateStats();
+    }, 3000);
+}
+
+// Update dashboard statistics
+function updateStats() {
+    // Simulate data update
+    dashboardData.stats.totalClasses += Math.floor(Math.random() * 3);
+    dashboardData.stats.totalSubjects += Math.floor(Math.random() * 2);
+
+    // Update DOM
+    document.getElementById('totalClasses').textContent = dashboardData.stats.totalClasses;
+    document.getElementById('totalSubjects').textContent = dashboardData.stats.totalSubjects;
+    document.getElementById('totalTeachers').textContent = dashboardData.stats.totalTeachers;
+    document.getElementById('totalRooms').textContent = dashboardData.stats.totalRooms;
+}
+
+// Update recent timetables list
+function updateRecentTimetables() {
+    const timetableList = document.querySelector('.timetable-list');
+    if (!timetableList) return;
+
+    timetableList.innerHTML = '';
+
+    dashboardData.recentTimetables.slice(0, 3).forEach(timetable => {
+        const item = document.createElement('div');
+        item.className = 'timetable-item';
+
+        item.innerHTML = `
+            <div class="timetable-info">
+                <h4>${timetable.name}</h4>
+                <p>Created on ${new Date(timetable.created).toLocaleDateString()}</p>
+            </div>
+            <div class="timetable-status ${timetable.status}">
+                <span>${timetable.status.charAt(0).toUpperCase() + timetable.status.slice(1)}</span>
+            </div>
+            <div class="timetable-actions">
+                <button class="btn-small" onclick="viewTimetable('${timetable.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-small" onclick="editTimetable('${timetable.id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+        `;
+
+        timetableList.appendChild(item);
+    });
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border-left: 4px solid ${getNotificationColor(type)};
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        padding: 1rem;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    `;
+
+    // Add to DOM
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'success': return 'check-circle';
+        case 'error': return 'exclamation-circle';
+        case 'warning': return 'exclamation-triangle';
+        default: return 'info-circle';
+    }
+}
+
+function getNotificationColor(type) {
+    switch(type) {
+        case 'success': return '#38a169';
+        case 'error': return '#e53e3e';
+        case 'warning': return '#ed8936';
+        default: return '#667eea';
+    }
+}
+
+// Animation functions
+function animateElements() {
+    // Add fade-in animation to dashboard elements
+    const elements = document.querySelectorAll('.stat-card, .action-btn, .timetable-item, .activity-item');
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+}
+
+// Add CSS for notifications
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    .notification {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .notification-content i {
+        font-size: 1.2rem;
+    }
+
+    .notification-close {
+        background: none;
+        border: none;
+        font-size: 1rem;
+        color: #718096;
+        cursor: pointer;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+    }
+
+    .notification-close:hover {
+        background: #f7fafc;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(notificationStyles);
+
+// Utility functions
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+function formatTime(time) {
+    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+// Export functions for external use
+window.dashboardAPI = {
+    generateTimetable,
+    importData,
+    exportTimetable,
+    viewTimetable,
+    editTimetable,
+    showNotification,
+    updateStats
+};
+
+// Handle window resize for responsive behavior
+window.addEventListener('resize', function() {
+    // Close sidebar on mobile when window is resized
+    if (window.innerWidth > 768) {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.remove('active');
+    }
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + N: Generate new timetable
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        generateTimetable();
+    }
+
+    // Escape: Close modals
+    if (e.key === 'Escape') {
+        const activeModal = document.querySelector('.modal.active');
+        if (activeModal) {
+            closeModal(activeModal.id);
+        }
+    }
+});
+
+console.log('Timetable Generator Dashboard loaded successfully!');
+
+// student_dashboard_file starts from here-
+
+    document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/';
+        return;
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'message';
+    messageDiv.style.margin = '20px';
+    messageDiv.style.fontFamily = 'Arial, sans-serif';
+    document.body.appendChild(messageDiv);
+
+    let currentView = 'day';
+    let currentDate = new Date();
+    const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+    const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    let studentData = {};
+    let timetableHistory = [];
+
+    async function initializeDashboard() {
+        try {
+            const userResponse = await fetch('http://127.0.0.1:8000/student/me', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!userResponse.ok) throw new Error('Failed to fetch user data');
+            studentData = await userResponse.json();  // Includes role from backend
+
+            const subjectsResponse = await fetch('http://127.0.0.1:8000/student/subjects', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!subjectsResponse.ok) throw new Error('Failed to fetch subjects');
+            studentData.subjects = await subjectsResponse.json();
+
+            const historyResponse = await fetch('http://127.0.0.1:8000/student/timetable_history', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!historyResponse.ok) throw new Error('Failed to fetch timetable history');
+            timetableHistory = await historyResponse.json();
+
+            updateDateDisplay();
+            loadStudentInfo();
+            loadSubjects();
+            updateQuickStats();
+            updateCalendar();
+        } catch (error) {
+            messageDiv.textContent = 'Error: ' + error.message;
+            messageDiv.style.color = 'red';
+        }
+    }
+
+    function loadStudentInfo() {
+        const studentName = document.getElementById('studentName');
+        if (studentName) studentName.textContent = `${studentData.username || 'Student'} (${studentData.role})`;  // Personalized with role from backend
+        // Other fields same as original
+        const studentID = document.getElementById('studentID');
+        const studentClass = document.getElementById('studentClass');
+        const studentSemester = document.getElementById('studentSemester');
+        if (studentID) studentID.textContent = studentData.id || 'N/A';
+        if (studentClass) studentClass.textContent = studentData.class || 'N/A';
+        if (studentSemester) studentSemester.textContent = studentData.semester || 'N/A';
+    }
+
+    function loadSubjects() {
+        const subjectsList = document.getElementById('subjectsList');
+        if (!subjectsList) return;
+        subjectsList.innerHTML = '';
+        studentData.subjects.forEach(subject => {
+            const subjectElement = document.createElement('div');
+            subjectElement.className = `subject-item ${subject.color || 'subject-computer'}`;
+            subjectElement.innerHTML = `
+                <div>
+                    <div class="subject-code">${subject.code}</div>
+                    <div class="subject-name">${subject.name}</div>
+                </div>
+                <div class="subject-credits">${subject.credits} CR</div>
+            `;
+            subjectElement.addEventListener('click', () => showSubjectDetails(subject));
+            subjectsList.appendChild(subjectElement);
+        });
+    }
+
+    function loadUpcomingEvents() {
+        const eventsList = document.getElementById('eventsList');
+        if (!eventsList) return;
+        eventsList.innerHTML = '';
+        upcomingEvents.slice(0, 4).forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-item';
+            eventElement.innerHTML = `
+                <div class="event-time">${event.time}</div>
+                <div class="event-details">
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-type">${event.type}</div>
+                </div>
+            `;
+            eventsList.appendChild(eventElement);
+        });
+    }
+
+    function updateQuickStats() {
+        const today = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const todayClasses = getTodayClasses(today);
+        const weekClasses = getTotalWeekClasses();
+        const totalCredits = studentData.subjects.reduce((sum, subject) => sum + subject.credits, 0);
+
+        const todayClassesEl = document.getElementById('todayClasses');
+        const weekClassesEl = document.getElementById('weekClasses');
+        const totalCreditsEl = document.getElementById('totalCredits');
+        if (todayClassesEl) todayClassesEl.textContent = todayClasses.length;
+        if (weekClassesEl) weekClassesEl.textContent = weekClasses;
+        if (totalCreditsEl) totalCreditsEl.textContent = totalCredits;
+    }
+
+    function getTodayClasses(day) {
+        return timetableData[day] || [];
+    }
+
+    function getTotalWeekClasses() {
+        return Object.values(timetableData).reduce((total, day) => total + day.length, 0);
+    }
+
+    function switchView(view) {
+        currentView = view;
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        const activeBtn = document.querySelector(`[data-view="${view}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+        document.querySelectorAll('.view-content').forEach(content => content.classList.remove('active'));
+        const viewContent = document.getElementById(`${view}View`);
+        if (viewContent) viewContent.classList.add('active');
+        updateCalendar();
+    }
+
+    function updateCalendar() {
+        switch (currentView) {
+            case 'day':
+                updateDayView();
+                break;
+            case 'week':
+                updateWeekView();
+                break;
+            case 'month':
+                updateMonthView();
+                break;
+        }
+    }
+
+    function updateDayView() {
+        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const dayClasses = getTodayClasses(dayName);
+        const dayViewDate = document.getElementById('dayViewDate');
+        if (dayViewDate) {
+            dayViewDate.textContent = currentDate.toLocaleDateString('en-US', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+        }
+        const slotsContainer = document.getElementById('daySlots');
+        if (!slotsContainer) return;
+        slotsContainer.innerHTML = '';
+        timeSlots.forEach(time => {
+            const classForTime = dayClasses.find(cls => cls.time === time);
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'time-slot';
+            const timeLabel = document.createElement('div');
+            timeLabel.className = 'time-label';
+            timeLabel.textContent = time;
+            const slotContent = document.createElement('div');
+            slotContent.className = 'slot-content';
+            if (classForTime) {
+                slotContent.classList.add('has-class');
+                slotContent.innerHTML = `
+                    <div class="class-info">
+                        <div class="class-subject">${classForTime.subject}</div>
+                        <div class="class-details">
+                            <span class="class-room">${classForTime.room}</span>
+                            <span>${classForTime.instructor}</span>
+                            <span>${classForTime.type}</span>
+                        </div>
+                    </div>
+                `;
+                slotContent.addEventListener('click', () => showClassDetails(classForTime));
+            }
+            timeSlot.appendChild(timeLabel);
+            timeSlot.appendChild(slotContent);
+            slotsContainer.appendChild(timeSlot);
+        });
+    }
+
+    function updateWeekView() {
+        const weekTimetable = document.getElementById('weekTimetable');
+        if (!weekTimetable) return;
+        weekTimetable.innerHTML = '';
+        const corner = document.createElement('div');
+        corner.className = 'week-corner';
+        corner.textContent = 'Time';
+        weekTimetable.appendChild(corner);
+        weekDays.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'week-day-header';
+            dayHeader.textContent = day.substring(0, 3);
+            weekTimetable.appendChild(dayHeader);
+        });
+        timeSlots.forEach(time => {
+            const timeSlot = document.createElement('div');
+            timeSlot.className = 'week-time-slot';
+            timeSlot.textContent = time;
+            weekTimetable.appendChild(timeSlot);
+            weekDays.forEach(day => {
+                const dayName = day.toLowerCase();
+                const dayClasses = timetableData[dayName] || [];
+                const classForTime = dayClasses.find(cls => cls.time === time);
+                const daySlot = document.createElement('div');
+                daySlot.className = 'week-day-slot';
+                if (classForTime) {
+                    daySlot.classList.add('has-class');
+                    daySlot.innerHTML = `
+                        <div class="week-class-subject">${classForTime.subject}</div>
+                        <div class="week-class-room">${classForTime.room}</div>
+                    `;
+                    daySlot.addEventListener('click', () => showClassDetails(classForTime));
+                }
+                weekTimetable.appendChild(daySlot);
+            });
+        });
+    }
+
+    function updateMonthView() {
+        const monthDaysHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const monthHeader = document.getElementById('monthHeader');
+        const monthGrid = document.getElementById('monthGrid');
+        if (!monthHeader || !monthGrid) return;
+        monthHeader.innerHTML = '';
+        monthGrid.innerHTML = '';
+        monthDaysHeaders.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'month-day-header';
+            dayHeader.textContent = day;
+            monthHeader.appendChild(dayHeader);
+        });
+        const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - firstDay.getDay());
+        for (let i = 0; i < 42; i++) {
+            const cellDate = new Date(startDate);
+            cellDate.setDate(startDate.getDate() + i);
+            const dayCell = document.createElement('div');
+            dayCell.className = 'month-day';
+            if (cellDate.getMonth() !== currentDate.getMonth()) {
+                dayCell.classList.add('other-month');
+            }
+            if (cellDate.toDateString() === new Date().toDateString()) {
+                dayCell.classList.add('today');
+            }
+            dayCell.innerHTML = `
+                <div class="month-day-number">${cellDate.getDate()}</div>
+                <div class="month-classes"></div>
+            `;
+            const dayName = cellDate.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+            const dayClasses = timetableData[dayName] || [];
+            const classesContainer = dayCell.querySelector('.month-classes');
+            dayClasses.slice(0, 3).forEach(() => {
+                const indicator = document.createElement('div');
+                indicator.className = 'month-class-indicator';
+                classesContainer.appendChild(indicator);
+            });
+            monthGrid.appendChild(dayCell);
+        }
+    }
+
+    function updateDateDisplay() {
+        const dateString = currentDate.toLocaleDateString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        const currentDateEl = document.getElementById('currentDate');
+        if (currentDateEl) currentDateEl.textContent = dateString;
+    }
+
+    function navigateDate(direction) {
+        switch (currentView) {
+            case 'day':
+                currentDate.setDate(currentDate.getDate() + direction);
+                break;
+            case 'week':
+                currentDate.setDate(currentDate.getDate() + (direction * 7));
+                break;
+            case 'month':
+                currentDate.setMonth(currentDate.getMonth() + direction);
+                break;
+        }
+        updateDateDisplay();
+        updateCalendar();
+        updateQuickStats();
+    }
+
+    function goToToday() {
+        currentDate = new Date();
+        updateDateDisplay();
+        updateCalendar();
+        updateQuickStats();
+    }
+
+    function showClassDetails(classInfo) {
+        const subject = studentData.subjects.find(s => s.code === classInfo.subject);
+        const modal = document.getElementById('classModal');
+        if (!modal) return;
+        document.getElementById('modalTitle').textContent = `${classInfo.subject} - ${classInfo.type}`;
+        document.getElementById('modalBody').innerHTML = `
+            <div class="detail-row">
+                <span class="detail-label">Subject:</span>
+                <span class="detail-value">${subject ? subject.name : classInfo.subject}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Time:</span>
+                <span class="detail-value">${classInfo.time}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Room:</span>
+                <span class="detail-value">${classInfo.room}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Instructor:</span>
+                <span class="detail-value">${classInfo.instructor}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Type:</span>
+                <span class="detail-value">${classInfo.type}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Credits:</span>
+                <span class="detail-value">${subject ? subject.credits : 'N/A'}</span>
+            </div>
+        `;
+        modal.style.display = 'block';
+    }
+
+    function showSubjectDetails(subject) {
+        const modal = document.getElementById('classModal');
+        if (!modal) return;
+        document.getElementById('modalTitle').textContent = `${subject.code} - ${subject.name}`;
+        document.getElementById('modalBody').innerHTML = `
+            <div class="detail-row">
+                <span class="detail-label">Subject Code:</span>
+                <span class="detail-value">${subject.code}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Subject Name:</span>
+                <span class="detail-value">${subject.name}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Credits:</span>
+                <span class="detail-value">${subject.credits}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Weekly Classes:</span>
+                <span class="detail-value">${getWeeklyClassCount(subject.code)}</span>
+            </div>
+        `;
+        modal.style.display = 'block';
+    }
+
+    function getWeeklyClassCount(subjectCode) {
+        let count = 0;
+        Object.values(timetableData).forEach(day => {
+            count += day.filter(cls => cls.subject === subjectCode).length;
+        });
+        return count;
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('classModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function exportTimetable() {
+        let csvContent = "Day,Time,Subject,Room,Instructor,Type\n";
+        Object.entries(timetableData).forEach(([day, classes]) => {
+            classes.forEach(cls => {
+                csvContent += `${day},${cls.time},${cls.subject},${cls.room},${cls.instructor},${cls.type}\n`;
+            });
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'my-timetable.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        messageDiv.textContent = 'Timetable exported successfully!';
+        messageDiv.style.color = 'green';
+    }
+
+    function syncCalendar() {
+        const loadingBtn = document.querySelector('.btn-sync');
+        if (!loadingBtn) return;
+        const originalText = loadingBtn.innerHTML;
+        loadingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+        loadingBtn.disabled = true;
+        setTimeout(() => {
+            loadingBtn.innerHTML = originalText;
+            loadingBtn.disabled = false;
+            messageDiv.textContent = 'Timetable synced with your calendar successfully!';
+            messageDiv.style.color = 'green';
+        }, 2000);
+    }
+
+    // Event listeners
+
+
+    window.addEventListener('click', (event) => {
+        const modal = document.getElementById('classModal');
+        if (modal && event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeModal();
+        if (event.key === 'ArrowLeft') navigateDate(-1);
+        if (event.key === 'ArrowRight') navigateDate(1);
+        if (event.key === 't' || event.key === 'T') goToToday();
+    });
+
+    // Initialize
+
+    // Rest of your original code, using timetableHistory to derive timetableData (group by day)
+    // E.g., function getTimetableData() { ... group timetableHistory by day ... }
+
+
+    const logoutButton = document.getElementById('logout');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = '/';
+        });
+    }
+    initializeDashboardUI();
+    await initializeDashboard();
+});
+</script>
+</body>
+</html>
