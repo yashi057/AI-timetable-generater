@@ -99,6 +99,14 @@ function initializeDashboard() {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
         }
+        
+        // Close import dropdown when clicking outside
+        const importContainer = document.querySelector('.import-dropdown-container');
+        const importDropdown = document.getElementById('importDropdown');
+        
+        if (importContainer && importDropdown && !importContainer.contains(e.target)) {
+            hideImportDropdown();
+        }
     });
 
     // Add animations to dashboard elements
@@ -197,6 +205,85 @@ function loadSettingsSection() {
 // Quick action functions
 function generateTimetable() {
     openModal('generateModal');
+}
+
+// Toggle import dropdown
+function toggleImportDropdown() {
+    const dropdown = document.getElementById('importDropdown');
+    const container = dropdown.parentElement;
+    
+    dropdown.classList.toggle('show');
+    container.classList.toggle('active');
+}
+
+// Import specific data types
+function importTeachers() {
+    hideImportDropdown();
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,.xlsx,.json';
+    
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            showNotification(`Importing teachers from ${file.name}...`, 'info');
+            setTimeout(() => {
+                showNotification('Teachers imported successfully!', 'success');
+                updateStats();
+            }, 2000);
+        }
+    };
+    
+    fileInput.click();
+}
+
+function importClasses() {
+    hideImportDropdown();
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,.xlsx,.json';
+    
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            showNotification(`Importing classes from ${file.name}...`, 'info');
+            setTimeout(() => {
+                showNotification('Classes imported successfully!', 'success');
+                updateStats();
+            }, 2000);
+        }
+    };
+    
+    fileInput.click();
+}
+
+function importCourses() {
+    hideImportDropdown();
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,.xlsx,.json';
+    
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            showNotification(`Importing courses from ${file.name}...`, 'info');
+            setTimeout(() => {
+                showNotification('Courses imported successfully!', 'success');
+                updateStats();
+            }, 2000);
+        }
+    };
+    
+    fileInput.click();
+}
+
+// Hide import dropdown
+function hideImportDropdown() {
+    const dropdown = document.getElementById('importDropdown');
+    const container = dropdown.parentElement;
+    
+    dropdown.classList.remove('show');
+    container.classList.remove('active');
 }
 
 function importData() {

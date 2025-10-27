@@ -294,6 +294,84 @@ section h2 {
     border-color: #cbd5e0;
 }
 
+/* Import Dropdown Styles */
+.import-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.import-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    margin-top: 4px;
+}
+
+.import-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #f8fafc;
+}
+
+.dropdown-item:first-child:hover {
+    border-radius: 6px 6px 0 0;
+}
+
+.dropdown-item:last-child:hover {
+    border-radius: 0 0 6px 6px;
+}
+
+.dropdown-item i {
+    color: #667eea;
+    font-size: 1rem;
+    width: 16px;
+    text-align: center;
+}
+
+.dropdown-item span {
+    color: #4a5568;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.dropdown-arrow {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+    font-size: 0.8rem !important;
+}
+
+.import-dropdown-container.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
 /* Recent Timetables */
 .timetable-list {
     display: flex;
