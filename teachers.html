@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Management - Time Weaver</title>
     <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="teachers.css">
+   <link rel="stylesheet" href="teachers.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -21,7 +21,7 @@
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
-            
+
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="dashboard.html" class="nav-link">
@@ -94,7 +94,7 @@
                             <i class="fas fa-chalkboard-teacher"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>47</h3>
+                            <h3 id="statTotalTeachers">0</h3>
                             <p>Total Teachers</p>
                         </div>
                         <div class="stat-trend positive">
@@ -107,7 +107,7 @@
                             <i class="fas fa-user-check"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>42</h3>
+                            <h3 id="statActiveTeachers">0</h3>
                             <p>Active Teachers</p>
                         </div>
                         <div class="stat-trend positive">
@@ -120,7 +120,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>1,248</h3>
+                            <h3 id="statTotalHours">0</h3>
                             <p>Teaching Hours</p>
                         </div>
                         <div class="stat-trend positive">
@@ -133,7 +133,7 @@
                             <i class="fas fa-book-open"></i>
                         </div>
                         <div class="stat-info">
-                            <h3>85</h3>
+                            <h3 id="statTotalSubjects">0</h3>
                             <p>Subjects Taught</p>
                         </div>
                         <div class="stat-trend neutral">
@@ -172,165 +172,16 @@
                     </select>
                     <select id="statusFilter" onchange="filterTeachers()">
                         <option value="">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="on-leave">On Leave</option>
+                        <option value="registered">Registered</option>
+                        <option value="pending">Pending</option>
                     </select>
                 </div>
 
-                <div class="teachers-grid" id="teachersGrid">
-                    <div class="teacher-card" data-teacher-id="T001">
-                        <div class="teacher-photo">
-                            <img src="https://via.placeholder.com/100" alt="Dr. Sarah Johnson">
-                            <div class="status-indicator active"></div>
-                        </div>
-                        <div class="teacher-info">
-                            <h3>Dr. Sarah Johnson</h3>
-                            <p class="title">Professor</p>
-                            <p class="department">Computer Science</p>
-                            <div class="contact-info">
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>sarah.johnson@university.edu</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>+1 (555) 123-4567</span>
-                                </div>
-                            </div>
-                            <div class="teacher-stats">
-                                <div class="stat-item">
-                                    <span class="stat-number">12</span>
-                                    <span class="stat-label">Subjects</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">24</span>
-                                    <span class="stat-label">Hours/Week</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">180</span>
-                                    <span class="stat-label">Students</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="teacher-actions">
-                            <button class="btn-icon" onclick="viewTeacher('T001')" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-icon" onclick="editTeacher('T001')" title="Edit Teacher">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-icon" onclick="viewSchedule('T001')" title="View Schedule">
-                                <i class="fas fa-calendar"></i>
-                            </button>
-                            <button class="btn-icon" onclick="assignSubjects('T001')" title="Assign Subjects">
-                                <i class="fas fa-book"></i>
-                            </button>
-                        </div>
-                    </div>
+           <div class="teachers-grid" id="teachersGrid">
+            <!-- Teachers will be loaded dynamically -->
+             </div>
 
-                    <div class="teacher-card" data-teacher-id="T002">
-                        <div class="teacher-photo">
-                            <img src="https://via.placeholder.com/100" alt="Prof. Michael Chen">
-                            <div class="status-indicator active"></div>
-                        </div>
-                        <div class="teacher-info">
-                            <h3>Prof. Michael Chen</h3>
-                            <p class="title">Associate Professor</p>
-                            <p class="department">Mathematics</p>
-                            <div class="contact-info">
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>michael.chen@university.edu</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>+1 (555) 234-5678</span>
-                                </div>
-                            </div>
-                            <div class="teacher-stats">
-                                <div class="stat-item">
-                                    <span class="stat-number">8</span>
-                                    <span class="stat-label">Subjects</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">20</span>
-                                    <span class="stat-label">Hours/Week</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">145</span>
-                                    <span class="stat-label">Students</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="teacher-actions">
-                            <button class="btn-icon" onclick="viewTeacher('T002')" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-icon" onclick="editTeacher('T002')" title="Edit Teacher">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-icon" onclick="viewSchedule('T002')" title="View Schedule">
-                                <i class="fas fa-calendar"></i>
-                            </button>
-                            <button class="btn-icon" onclick="assignSubjects('T002')" title="Assign Subjects">
-                                <i class="fas fa-book"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="teacher-card" data-teacher-id="T003">
-                        <div class="teacher-photo">
-                            <img src="https://via.placeholder.com/100" alt="Dr. Emily Davis">
-                            <div class="status-indicator on-leave"></div>
-                        </div>
-                        <div class="teacher-info">
-                            <h3>Dr. Emily Davis</h3>
-                            <p class="title">Assistant Professor</p>
-                            <p class="department">Physics</p>
-                            <div class="contact-info">
-                                <div class="contact-item">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>emily.davis@university.edu</span>
-                                </div>
-                                <div class="contact-item">
-                                    <i class="fas fa-phone"></i>
-                                    <span>+1 (555) 345-6789</span>
-                                </div>
-                            </div>
-                            <div class="teacher-stats">
-                                <div class="stat-item">
-                                    <span class="stat-number">6</span>
-                                    <span class="stat-label">Subjects</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">0</span>
-                                    <span class="stat-label">Hours/Week</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-number">0</span>
-                                    <span class="stat-label">Students</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="teacher-actions">
-                            <button class="btn-icon" onclick="viewTeacher('T003')" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-icon" onclick="editTeacher('T003')" title="Edit Teacher">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-icon" onclick="viewSchedule('T003')" title="View Schedule">
-                                <i class="fas fa-calendar"></i>
-                            </button>
-                            <button class="btn-icon" onclick="assignSubjects('T003')" title="Assign Subjects">
-                                <i class="fas fa-book"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </section>
-
             <!-- Add Teacher Modal -->
             <div class="modal large" id="addTeacherModal">
                 <div class="modal-content">
@@ -484,12 +335,8 @@
         </main>
     </div>
 
-    <!-- Add these script tags BEFORE your existing scripts -->
-<script src="data-manager.js"></script>
 <script src="navigation.js"></script>
+<script src="teachers.js"></script>
 
-
-    <script src="dashboard.js"></script>
-    <script src="teachers.js"></script>
 </body>
 </html>
