@@ -1,143 +1,53 @@
-// CLass Room  Management JavaScript
-// At the top of students.js, teachers.js, courses.js, timetable.js
-// Replace the local data arrays with calls to dataManager
 
-// For students.js - replace studentsData with:
-let studentsData = window.dataManager.getStudents();
-let filteredStudents = [...studentsData];
 
-// Subscribe to data changes
-window.dataManager.subscribe('studentAdded', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-    updateStatistics();
-});
-
-window.dataManager.subscribe('studentUpdated', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-});
-
-window.dataManager.subscribe('studentDeleted', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-    updateStatistics();
-});
-
-// Update the addStudent function to use dataManager:
-function addStudent() {
-    const form = document.getElementById('addStudentForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const formData = new FormData(form);
-    
-    const newStudent = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        dateOfBirth: formData.get('dateOfBirth'),
-        gender: formData.get('gender'),
-        department: formData.get('department'),
-        year: parseInt(formData.get('year')),
-        status: 'active',
-        photo: 'https://via.placeholder.com/40',
-        enrollmentDate: formData.get('enrollmentDate'),
-        address: formData.get('address'),
-        emergencyContact: formData.get('emergencyContact'),
-        gpa: 0.0,
-        credits: 0,
-        enrolledCourses: []
-    };
-
-    showNotification('Adding student...', 'info');
-
-    setTimeout(() => {
-        window.dataManager.addStudent(newStudent);
-        closeModal('addStudentModal');
-        showNotification('Student added successfully!', 'success');
-    }, 1500);
-}
-// Sample student data
- studentsData = [
-    {
-        id: 'CS2024001',
-        firstName: 'John',
-        lastName: 'Smith',
-        email: 'john.smith@university.edu',
-        phone: '+1 (555) 123-4567',
-        department: 'computer-science',
-        year: 2,
-        status: 'active',
-        photo: 'https://via.placeholder.com/40',
-        dateOfBirth: '2002-03-15',
-        gender: 'male',
-        address: '123 Main St, City, State 12345',
-        emergencyContact: 'Jane Smith - +1 (555) 123-4568',
-        enrollmentDate: '2022-08-15',
-        gpa: 3.75,
-        credits: 45
-    },
-    {
-        id: 'MATH2024002',
-        firstName: 'Emily',
-        lastName: 'Johnson',
-        email: 'emily.johnson@university.edu',
-        phone: '+1 (555) 234-5678',
-        department: 'mathematics',
-        year: 3,
-        status: 'active',
-        photo: 'https://via.placeholder.com/40',
-        dateOfBirth: '2001-07-22',
-        gender: 'female',
-        address: '456 Oak Ave, City, State 12345',
-        emergencyContact: 'Robert Johnson - +1 (555) 234-5679',
-        enrollmentDate: '2021-08-15',
-        gpa: 3.92,
-        credits: 78
-    },
-    {
-        id: 'PHY2024003',
-        firstName: 'Michael',
-        lastName: 'Brown',
-        email: 'michael.brown@university.edu',
-        phone: '+1 (555) 345-6789',
-        department: 'physics',
-        year: 1,
-        status: 'inactive',
-        photo: 'https://via.placeholder.com/40',
-        dateOfBirth: '2003-11-08',
-        gender: 'male',
-        address: '789 Pine St, City, State 12345',
-        emergencyContact: 'Sarah Brown - +1 (555) 345-6790',
-        enrollmentDate: '2023-08-15',
-        gpa: 3.45,
-        credits: 12
-    }
-];
-
- filteredStudents = [...studentsData];
+// Student Management JavaScript
+let studentsData = [];
+let filteredStudents = [];
 let currentPage = 1;
 const studentsPerPage = 10;
 
+// Load students from database
+async function loadStudentsFromDatabase() {
+    const authToken = localStorage.getItem('token');
+    if (!authToken) {
+        showNotification('Please log in first', 'error');
+        window.location.href = '/admin';
+        return;
+    }
+
+    try {
+        // ✅ NEW: Fetch from approved_students (whitelist)
+        const response = await fetch('http://127.0.0.1:8000/admin/approved_students', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+
+        if (!response.ok) throw new Error('Failed to fetch students');
+
+        studentsData = await response.json();
+        filteredStudents = [...studentsData];
+
+        renderStudentsTable();
+        updateStatistics();
+        updatePagination();
+
+        showNotification('Students loaded successfully', 'success');
+    } catch (err) {
+        console.error('Error loading students:', err);
+        showNotification('Error loading students: ' + err.message, 'error');
+    }
+}
+
 // Initialize page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     initializeStudentsPage();
-    renderStudentsTable();
-    updateStatistics();
+    await loadStudentsFromDatabase();
 });
 
 function initializeStudentsPage() {
-    // Add sidebar toggle functionality
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    
+
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('active');
@@ -148,14 +58,12 @@ function initializeStudentsPage() {
 }
 
 function setupEventListeners() {
-    // Close modals when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
             closeModal(e.target.id);
         }
     });
 
-    // Form validation
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function(e) {
@@ -167,12 +75,13 @@ function setupEventListeners() {
 // Search and filter functions
 function searchStudents() {
     const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
-    
+
     filteredStudents = studentsData.filter(student => {
-        return student.firstName.toLowerCase().includes(searchTerm) ||
-               student.lastName.toLowerCase().includes(searchTerm) ||
-               student.id.toLowerCase().includes(searchTerm) ||
-               student.email.toLowerCase().includes(searchTerm);
+        return (student.firstName && student.firstName.toLowerCase().includes(searchTerm)) ||
+               (student.lastName && student.lastName.toLowerCase().includes(searchTerm)) ||
+               (student.username && student.username.toLowerCase().includes(searchTerm)) ||
+               (student.student_id && student.student_id.toLowerCase().includes(searchTerm)) ||
+               (student.email && student.email.toLowerCase().includes(searchTerm));
     });
 
     applyFilters();
@@ -181,6 +90,7 @@ function searchStudents() {
 }
 
 function filterStudents() {
+    filteredStudents = [...studentsData];
     applyFilters();
     renderStudentsTable();
     updatePagination();
@@ -193,12 +103,13 @@ function applyFilters() {
 
     filteredStudents = filteredStudents.filter(student => {
         return (!departmentFilter || student.department === departmentFilter) &&
-               (!yearFilter || student.year.toString() === yearFilter) &&
+               (!yearFilter || student.year && student.year.toString() === yearFilter) &&
                (!statusFilter || student.status === statusFilter);
     });
 }
 
 // Table rendering
+
 function renderStudentsTable() {
     const tbody = document.getElementById('studentsTableBody');
     tbody.innerHTML = '';
@@ -207,89 +118,114 @@ function renderStudentsTable() {
     const endIndex = startIndex + studentsPerPage;
     const studentsToShow = filteredStudents.slice(startIndex, endIndex);
 
+    if (!studentsToShow || studentsToShow.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:2rem;color:#718096;">No students found. Click "Import Students" to add data.</td></tr>';
+        return;
+    }
+
     studentsToShow.forEach(student => {
         const row = document.createElement('tr');
-        row.dataset.studentId = student.id;
-        
+        const studentId = student.student_id || student.id || 'N/A';
+        row.dataset.studentId = studentId;
+
+        // ✅ SAFE: Get display name with multiple fallbacks
+        const displayName = student.displayName ||
+                           student.fullName ||
+                           student.username ||
+                           `${student.firstName || ''} ${student.lastName || ''}`.trim() ||
+                           student.email?.split('@')[0] ||
+                           'Unknown Student';
+
+        const email = student.email || 'N/A';
+        const department = student.department || 'N/A';
+        const year = student.year || 'N/A';
+        const gpa = student.gpa !== undefined && student.gpa !== null ?
+                   (typeof student.gpa === 'number' ? student.gpa.toFixed(2) : student.gpa) :
+                   '0.00';
+        const photo = student.photo || 'https://via.placeholder.com/40';
+
+        // ✅ Status badge with better styling
+        const statusBadge = student.status === 'registered'
+            ? '<span class="status-badge active" style="background:rgba(56,161,105,0.1);color:#38a169;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;">✓ Registered</span>'
+            : '<span class="status-badge inactive" style="background:rgba(237,137,54,0.1);color:#ed8936;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;">⏳ Pending</span>';
+
         row.innerHTML = `
-            <td><input type="checkbox" class="student-checkbox" value="${student.id}"></td>
+            <td><input type="checkbox" class="student-checkbox" value="${studentId}"></td>
             <td>
-                <img src="${student.photo}" alt="${student.firstName} ${student.lastName}" class="student-photo">
+                <div style="position:relative;display:inline-block;"
+                     onmouseenter="this.querySelector('.photo-edit-btn').style.opacity='1'"
+                     onmouseleave="this.querySelector('.photo-edit-btn').style.opacity='0'">
+                    <img src="${photo}"
+                         alt="${displayName}"
+                         class="student-photo"
+                         style="width:40px;height:40px;border-radius:50%;cursor:pointer;object-fit:cover;"
+                         onerror="this.src='https://via.placeholder.com/40'"
+                         onclick="uploadStudentPhoto('${studentId}')">
+                    <button class="photo-edit-btn"
+                            onclick="uploadStudentPhoto('${studentId}')"
+                            style="position:absolute;bottom:-5px;right:-5px;width:20px;height:20px;border-radius:50%;background:#667eea;color:white;border:2px solid white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0;transition:opacity 0.2s;"
+                            title="Change Photo">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
             </td>
-            <td><strong>${student.id}</strong></td>
-            <td>${student.firstName} ${student.lastName}</td>
-            <td>${student.email}</td>
-            <td>${getDepartmentName(student.department)}</td>
-            <td>${getYearName(student.year)}</td>
-            <td><span class="status-badge ${student.status}">${student.status.charAt(0).toUpperCase() + student.status.slice(1)}</span></td>
+            <td><strong>${studentId}</strong></td>
+            <td>${displayName}</td>
+            <td>${email}</td>
+            <td>${department}</td>
+            <td>${year}</td>
+            <td>${gpa}</td>
+            <td>${statusBadge}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-icon" onclick="viewStudent('${student.id}')" title="View Details">
+                    <button class="btn-icon" onclick="viewStudent('${studentId}')" title="View Details">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn-icon" onclick="editStudent('${student.id}')" title="Edit Student">
+                    <button class="btn-icon" onclick="editStudent('${studentId}')" title="Edit Student">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="btn-icon" onclick="viewSchedule('${student.id}')" title="View Schedule">
-                        <i class="fas fa-calendar"></i>
-                    </button>
-                    <button class="btn-icon danger" onclick="deleteStudent('${student.id}')" title="Delete Student">
+                    <button class="btn-icon danger" onclick="deleteStudent('${studentId}')" title="Delete Student">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </td>
         `;
-        
+
         tbody.appendChild(row);
     });
 
     updateSelectAllCheckbox();
 }
 
-function getDepartmentName(departmentCode) {
-    const departments = {
-        'computer-science': 'Computer Science',
-        'mathematics': 'Mathematics',
-        'physics': 'Physics',
-        'chemistry': 'Chemistry'
-    };
-    return departments[departmentCode] || departmentCode;
-}
 
-function getYearName(year) {
-    const years = {
-        1: '1st Year',
-        2: '2nd Year',
-        3: '3rd Year',
-        4: '4th Year'
-    };
-    return years[year] || `${year}th Year`;
-}
 
 // Pagination
 function updatePagination() {
     const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
-    const paginationInfo = document.querySelector('.pagination-info');
     const startIndex = (currentPage - 1) * studentsPerPage + 1;
     const endIndex = Math.min(currentPage * studentsPerPage, filteredStudents.length);
-    
-    paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${filteredStudents.length} students`;
 
-    // Update page buttons (simplified)
-    const pageNumbers = document.querySelector('.page-numbers');
+    document.getElementById('paginationInfo').textContent =
+        `Showing ${startIndex}-${endIndex} of ${filteredStudents.length} students`;
+
+    const pageNumbers = document.getElementById('pageNumbers');
     pageNumbers.innerHTML = '';
-    
+
     for (let i = 1; i <= Math.min(totalPages, 5); i++) {
         const button = document.createElement('button');
         button.className = `page-btn ${i === currentPage ? 'active' : ''}`;
         button.textContent = i;
-        button.onclick = () => changePage(i);
+        button.onclick = () => { currentPage = i; renderStudentsTable(); updatePagination(); };
         pageNumbers.appendChild(button);
     }
+
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
 }
 
-function changePage(page) {
-    currentPage = page;
+function changePage(direction) {
+    const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+    currentPage = Math.max(1, Math.min(currentPage + direction, totalPages));
     renderStudentsTable();
     updatePagination();
 }
@@ -298,7 +234,7 @@ function changePage(page) {
 function toggleSelectAll() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const studentCheckboxes = document.querySelectorAll('.student-checkbox');
-    
+
     studentCheckboxes.forEach(checkbox => {
         checkbox.checked = selectAllCheckbox.checked;
     });
@@ -308,317 +244,268 @@ function updateSelectAllCheckbox() {
     const selectAllCheckbox = document.getElementById('selectAll');
     const studentCheckboxes = document.querySelectorAll('.student-checkbox');
     const checkedBoxes = document.querySelectorAll('.student-checkbox:checked');
-    
-    selectAllCheckbox.checked = studentCheckboxes.length > 0 && checkedBoxes.length === studentCheckboxes.length;
-    selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < studentCheckboxes.length;
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = studentCheckboxes.length > 0 && checkedBoxes.length === studentCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < studentCheckboxes.length;
+    }
 }
 
 // Student actions
 function viewStudent(studentId) {
-    const student = studentsData.find(s => s.id === studentId);
+    const student = studentsData.find(s => (s.student_id || s.id) === studentId);
     if (!student) {
         showNotification('Student not found', 'error');
         return;
     }
 
-    // Update modal title
-    document.getElementById('studentDetailsTitle').textContent = `${student.firstName} ${student.lastName}`;
+    // ✅ Safe display name
+    const displayName = student.displayName ||
+                       student.fullName ||
+                       student.username ||
+                       `${student.firstName || ''} ${student.lastName || ''}`.trim() ||
+                       'Unknown Student';
 
-    // Generate student details HTML
-    const detailsContent = document.getElementById('studentDetailsContent');
-    detailsContent.innerHTML = generateStudentDetailsHTML(student);
+    document.getElementById('studentDetailsTitle').textContent = displayName;
 
-    // Open modal
-    openModal('studentDetailsModal');
-}
+    // ✅ Safe field access
+    const studentIdValue = student.student_id || student.id || 'N/A';
+    const email = student.email || 'N/A';
+    const phone = student.phone || 'N/A';
+    const department = student.department || 'N/A';
+    const year = student.year || 'N/A';
+    const semester = student.semester || 'N/A';
+    const gpa = student.gpa !== undefined && student.gpa !== null ?
+                (typeof student.gpa === 'number' ? student.gpa.toFixed(2) : student.gpa) :
+                '0.00';
+    const credits = student.credits || 0;
+    const dateOfBirth = student.dateOfBirth || 'N/A';
+    const address = student.address || 'N/A';
+    const enrollmentDate = student.enrollmentDate || student.approved_date || 'N/A';
 
-function generateStudentDetailsHTML(student) {
-    return `
-        <div class="student-details">
-            <div class="student-avatar">
-                <img src="${student.photo}" alt="${student.firstName} ${student.lastName}">
-                <h3>${student.firstName} ${student.lastName}</h3>
-                <p class="student-id">${student.id}</p>
-                <span class="status-badge ${student.status}">${student.status.charAt(0).toUpperCase() + student.status.slice(1)}</span>
+    document.getElementById('studentDetailsContent').innerHTML = `
+        <div class="student-details" style="display:grid;gap:1rem;">
+            <div class="info-group" style="background:#f7fafc;padding:1rem;border-radius:8px;">
+                <h5 style="color:#2d3748;font-weight:600;margin-bottom:0.5rem;">Personal Information</h5>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Student ID:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${studentIdValue}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Name:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${displayName}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Email:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${email}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Phone:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${phone}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Date of Birth:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${dateOfBirth}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Address:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${address}</span>
+                </div>
             </div>
-            <div class="student-info">
-                <div class="info-group">
-                    <h5>Personal Information</h5>
-                    <div class="info-item">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value">${student.email}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Phone:</span>
-                        <span class="info-value">${student.phone}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Date of Birth:</span>
-                        <span class="info-value">${new Date(student.dateOfBirth).toLocaleDateString()}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Gender:</span>
-                        <span class="info-value">${student.gender.charAt(0).toUpperCase() + student.gender.slice(1)}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Address:</span>
-                        <span class="info-value">${student.address}</span>
-                    </div>
+            <div class="info-group" style="background:#f7fafc;padding:1rem;border-radius:8px;">
+                <h5 style="color:#2d3748;font-weight:600;margin-bottom:0.5rem;">Academic Information</h5>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Department:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${department}</span>
                 </div>
-                <div class="info-group">
-                    <h5>Academic Information</h5>
-                    <div class="info-item">
-                        <span class="info-label">Department:</span>
-                        <span class="info-value">${getDepartmentName(student.department)}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Year:</span>
-                        <span class="info-value">${getYearName(student.year)}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Enrollment Date:</span>
-                        <span class="info-value">${new Date(student.enrollmentDate).toLocaleDateString()}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">GPA:</span>
-                        <span class="info-value">${student.gpa}</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Credits Completed:</span>
-                        <span class="info-value">${student.credits}</span>
-                    </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Year:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${year}</span>
                 </div>
-                <div class="info-group">
-                    <h5>Emergency Contact</h5>
-                    <div class="info-item">
-                        <span class="info-label">Contact:</span>
-                        <span class="info-value">${student.emergencyContact}</span>
-                    </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Semester:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${semester}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">GPA:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${gpa}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Credits:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${credits}</span>
+                </div>
+                <div class="info-item" style="display:flex;justify-content:space-between;padding:0.5rem 0;">
+                    <span class="info-label" style="color:#718096;font-weight:500;">Enrollment Date:</span>
+                    <span class="info-value" style="color:#2d3748;font-weight:500;">${enrollmentDate}</span>
                 </div>
             </div>
         </div>
     `;
+
+    openModal('studentDetailsModal');
 }
 
 function editStudent(studentId) {
-    const student = studentsData.find(s => s.id === studentId);
-    if (!student) {
-        showNotification('Student not found', 'error');
-        return;
-    }
-
-    // Populate form with student data
-    populateStudentForm(student);
-    
-    // Change modal title and button text
-    document.querySelector('#addStudentModal .modal-header h3').textContent = 'Edit Student';
-    document.querySelector('#addStudentModal .btn.primary').textContent = 'Update Student';
-    document.querySelector('#addStudentModal .btn.primary').onclick = () => updateStudent(studentId);
-
-    openModal('addStudentModal');
+    showNotification('Edit feature coming soon', 'info');
 }
 
-function populateStudentForm(student) {
-    document.getElementById('firstName').value = student.firstName;
-    document.getElementById('lastName').value = student.lastName;
-    document.getElementById('email').value = student.email;
-    document.getElementById('phone').value = student.phone;
-    document.getElementById('dateOfBirth').value = student.dateOfBirth;
-    document.getElementById('gender').value = student.gender;
-    document.getElementById('studentId').value = student.id;
-    document.getElementById('department').value = student.department;
-    document.getElementById('year').value = student.year;
-    document.getElementById('enrollmentDate').value = student.enrollmentDate;
-    document.getElementById('address').value = student.address;
-    document.getElementById('emergencyContact').value = student.emergencyContact;
+function editCurrentStudent() {
+    showNotification('Edit feature coming soon', 'info');
 }
 
-function updateStudent(studentId) {
-    const form = document.getElementById('addStudentForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
+async function deleteStudent(studentId) {
+    const student = studentsData.find(s => (s.student_id || s.id) === studentId);
+    const confirmMsg = student && student.status === 'registered'
+        ? '⚠️ This student has already registered. Delete from whitelist?\n\nThey will no longer be able to access the system.'
+        : '⚠️ Remove this student from whitelist?\n\nThey will not be able to register.';
+
+    if (!confirm(confirmMsg)) {
         return;
     }
 
-    const formData = new FormData(form);
-    const studentIndex = studentsData.findIndex(s => s.id === studentId);
-    
-    if (studentIndex === -1) {
-        showNotification('Student not found', 'error');
-        return;
-    }
+    const authToken = localStorage.getItem('token');
+    showNotification('Removing student from whitelist...', 'info');
 
-    // Update student data
-    studentsData[studentIndex] = {
-        ...studentsData[studentIndex],
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        dateOfBirth: formData.get('dateOfBirth'),
-        gender: formData.get('gender'),
-        department: formData.get('department'),
-        year: parseInt(formData.get('year')),
-        enrollmentDate: formData.get('enrollmentDate'),
-        address: formData.get('address'),
-        emergencyContact: formData.get('emergencyContact')
-    };
+    try {
+        // ✅ NEW: Delete from approved_students collection
+        const response = await fetch(`http://127.0.0.1:8000/admin/approved_student/${studentId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
 
-    showNotification('Updating student...', 'info');
 
-    setTimeout(() => {
-        closeModal('addStudentModal');
-        resetAddStudentModal();
-        renderStudentsTable();
-        showNotification('Student updated successfully!', 'success');
-    }, 1500);
-}
 
-function deleteStudent(studentId) {
-    if (!confirm('Are you sure you want to delete this student? This action cannot be undone.')) {
-        return;
-    }
-
-    showNotification('Deleting student...', 'info');
-
-    setTimeout(() => {
-        // Remove from data array
-        const index = studentsData.findIndex(s => s.id === studentId);
-        if (index !== -1) {
-            studentsData.splice(index, 1);
-            filteredStudents = filteredStudents.filter(s => s.id !== studentId);
+        if (response.ok) {
+            studentsData = studentsData.filter(s => (s.student_id || s.id) !== studentId);
+            filteredStudents = filteredStudents.filter(s => (s.student_id || s.id) !== studentId);
+            renderStudentsTable();
+            updatePagination();
+            updateStatistics();
+            showNotification('Student deleted successfully!', 'success');
+        } else {
+            throw new Error('Failed to delete student');
         }
-
-        renderStudentsTable();
-        updatePagination();
-        updateStatistics();
-        showNotification('Student deleted successfully!', 'success');
-    }, 1500);
+    } catch (err) {
+        showNotification('Error deleting student: ' + err.message, 'error');
+    }
 }
 
-function viewSchedule(studentId) {
-    showNotification(`Loading schedule for student: ${studentId}`, 'info');
-    // This would open the student's schedule view
-}
-
-// Add new student
 function openAddStudentModal() {
-    resetAddStudentModal();
+    document.getElementById('addStudentForm').reset();
     openModal('addStudentModal');
 }
 
-function resetAddStudentModal() {
-    // Reset modal title and button
-    document.querySelector('#addStudentModal .modal-header h3').textContent = 'Add New Student';
-    document.querySelector('#addStudentModal .btn.primary').textContent = 'Add Student';
-    document.querySelector('#addStudentModal .btn.primary').onclick = addStudent;
-    
-    // Reset form
-    document.getElementById('addStudentForm').reset();
-}
-
-function addStudent() {
+async function addStudent() {
     const form = document.getElementById('addStudentForm');
     if (!form.checkValidity()) {
         form.reportValidity();
         return;
     }
 
-    const formData = new FormData(form);
-    
-    // Check if student ID already exists
-    const existingStudent = studentsData.find(s => s.id === formData.get('studentId'));
-    if (existingStudent) {
-        showNotification('Student ID already exists', 'error');
-        return;
-    }
+    const authToken = localStorage.getItem('token');
 
     const newStudent = {
-        id: formData.get('studentId'),
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        dateOfBirth: formData.get('dateOfBirth'),
-        gender: formData.get('gender'),
-        department: formData.get('department'),
-        year: parseInt(formData.get('year')),
+        student_id: document.getElementById('studentId').value,
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        username: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        dateOfBirth: document.getElementById('dateOfBirth').value,
+        department: document.getElementById('department').value,
+        year: parseInt(document.getElementById('year').value),
+        semester: document.getElementById('semester').value,
+        enrollmentDate: document.getElementById('enrollmentDate').value,
         status: 'active',
-        photo: 'https://via.placeholder.com/40',
-        enrollmentDate: formData.get('enrollmentDate'),
-        address: formData.get('address'),
-        emergencyContact: formData.get('emergencyContact'),
         gpa: 0.0,
-        credits: 0
+        credits: 0,
+        photo: 'https://via.placeholder.com/40'
     };
 
     showNotification('Adding student...', 'info');
 
-    setTimeout(() => {
-        studentsData.push(newStudent);
-        filteredStudents = [...studentsData];
-        closeModal('addStudentModal');
-        renderStudentsTable();
-        updatePagination();
-        updateStatistics();
-        showNotification('Student added successfully!', 'success');
-    }, 1500);
+    try {
+        const response = await fetch('http://127.0.0.1:8000/admin/add_student', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newStudent)
+        });
+
+        if (response.ok) {
+            closeModal('addStudentModal');
+            await loadStudentsFromDatabase();
+            showNotification('Student added successfully!', 'success');
+        } else {
+            const error = await response.json();
+            showNotification('Error: ' + error.detail, 'error');
+        }
+    } catch (err) {
+        showNotification('Error adding student: ' + err.message, 'error');
+    }
 }
 
-// Import/Export functions
-function importStudents() {
+// Import/Export
+async function importStudents() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '.csv,.xlsx,.json';
-    
-    fileInput.onchange = function(e) {
+    fileInput.accept = '.csv,.xlsx,.xls';
+
+    fileInput.onchange = async function(e) {
         const file = e.target.files[0];
-        if (file) {
-            showNotification(`Importing students from ${file.name}...`, 'info');
-            
-            // Simulate import process
-            setTimeout(() => {
-                showNotification('Students imported successfully!', 'success');
-                updateStatistics();
-                renderStudentsTable();
-            }, 3000);
+        if (!file) return;
+
+        const authToken = localStorage.getItem('token');
+        if (!authToken) {
+            alert('Please log in first');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showNotification('Uploading students...', 'info');
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/admin/upload_students', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(`Success! Added: ${result.added}, Updated: ${result.updated}`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                const error = await response.json();
+                showNotification('Error: ' + error.detail, 'error');
+            }
+        } catch (err) {
+            showNotification('Upload failed: ' + err.message, 'error');
         }
     };
-    
+
     fileInput.click();
 }
 
 function exportStudents() {
-    showNotification('Preparing export...', 'info');
-    
-    setTimeout(() => {
-        const csvContent = generateStudentsCSV();
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `students-export-${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-        
-        showNotification('Students exported successfully!', 'success');
-    }, 1500);
-}
+    showNotification('Exporting students...', 'info');
 
-function generateStudentsCSV() {
-    const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Department', 'Year', 'Status', 'GPA', 'Credits'];
-    const rows = studentsData.map(student => [
-        student.id,
-        student.firstName,
-        student.lastName,
-        student.email,
-        student.phone,
-        getDepartmentName(student.department),
-        getYearName(student.year),
-        student.status,
-        student.gpa,
-        student.credits
-    ]);
+    const csvContent = 'ID,First Name,Last Name,Email,Department,Year,GPA,Credits,Status\n' +
+        studentsData.map(s =>
+            `${s.student_id || s.id},${s.firstName || ''},${s.lastName || ''},${s.email || ''},${s.department || ''},${s.year || ''},${s.gpa || ''},${s.credits || ''},${s.status || ''}`
+        ).join('\n');
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `students-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
+    showNotification('Students exported successfully!', 'success');
 }
 
 // Statistics
@@ -626,21 +513,12 @@ function updateStatistics() {
     const totalStudents = studentsData.length;
     const activeStudents = studentsData.filter(s => s.status === 'active').length;
     const graduatedStudents = studentsData.filter(s => s.status === 'graduated').length;
-    const departments = new Set(studentsData.map(s => s.department)).size;
+    const departments = new Set(studentsData.map(s => s.department).filter(d => d)).size;
 
-    // Update DOM (if stat cards exist)
-    const statElements = document.querySelectorAll('.stat-card h3');
-    if (statElements.length >= 4) {
-        statElements[0].textContent = totalStudents.toLocaleString();
-        statElements[1].textContent = activeStudents.toLocaleString();
-        statElements[2].textContent = graduatedStudents;
-        statElements[3].textContent = departments;
-    }
-}
-
-function editCurrentStudent() {
-    // This would be called from the student details modal
-    showNotification('Opening edit form...', 'info');
+    document.getElementById('totalStudents').textContent = totalStudents;
+    document.getElementById('activeStudents').textContent = activeStudents;
+    document.getElementById('graduatedStudents').textContent = graduatedStudents;
+    document.getElementById('totalDepartments').textContent = departments;
 }
 
 // Modal functions
@@ -657,22 +535,14 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
-        // Reset form if it exists
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
     }
 }
 
 // Notification system
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
 
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -685,28 +555,17 @@ function showNotification(message, type = 'info') {
         </button>
     `;
 
-    // Add styles
     notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
+        position: fixed; top: 20px; right: 20px; background: white;
         border-left: 4px solid ${getNotificationColor(type)};
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
-        padding: 1rem;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        min-width: 300px;
+        border-radius: 8px; padding: 1rem; z-index: 10000;
+        display: flex; align-items: center; gap: 1rem; min-width: 300px;
         animation: slideInRight 0.3s ease;
     `;
 
-    // Add to DOM
     document.body.appendChild(notification);
 
-    // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOutRight 0.3s ease';
@@ -733,20 +592,61 @@ function getNotificationColor(type) {
     }
 }
 
-// Export functions for global use
-window.studentsAPI = {
-    searchStudents,
-    filterStudents,
-    viewStudent,
-    editStudent,
-    deleteStudent,
-    viewSchedule,
-    addStudent,
-    importStudents,
-    exportStudents,
-    toggleSelectAll,
-    openAddStudentModal,
-    showNotification
-};
+// ==================== UPLOAD STUDENT PHOTO ====================
+async function uploadStudentPhoto(studentId) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/jpeg,image/jpg,image/png,image/gif';
+
+    fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // ✅ CHECK FILE SIZE (max 2MB)
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+            showNotification('⚠️ Image too large! Please use an image smaller than 2MB.', 'error');
+            return;
+        }
+
+        // ✅ CHECK FILE TYPE
+        if (!file.type.startsWith('image/')) {
+            showNotification('⚠️ Please select an image file (JPG, PNG, GIF)', 'error');
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showNotification('Please log in first', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showNotification('Uploading photo...', 'info');
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/admin/upload_student_photo/${studentId}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification('✅ Photo uploaded successfully!', 'success');
+                await loadStudentsFromDatabase();
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to upload photo');
+            }
+        } catch (err) {
+            showNotification('❌ Error: ' + err.message, 'error');
+        }
+    };
+
+    fileInput.click();
+}
 
 console.log('Student management system loaded successfully!');
