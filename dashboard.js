@@ -1,254 +1,545 @@
-// Dashboard JavaScript functionality
-
-// Global variables
-let currentUser = {
-    name: 'Admin',
-    role: 'Administrator',
-    avatar: 'https://via.placeholder.com/40'
-};
-
+// Dashboard's functional JS
 let dashboardData = {
-    stats: {
-        totalClasses: 24,
-        totalSubjects: 12,
-        totalTeachers: 18,
-        totalRooms: 15
-    },
-    recentTimetables: [
-        {
-            id: 'cs-fall-2024',
-            name: 'Computer Science - Fall 2024',
-            department: 'Computer Science',
-            created: '2024-09-15',
-            status: 'completed'
-        },
-        {
-            id: 'math-fall-2024',
-            name: 'Mathematics - Fall 2024',
-            department: 'Mathematics',
-            created: '2024-09-12',
-            status: 'in-progress'
-        },
-        {
-            id: 'physics-fall-2024',
-            name: 'Physics - Fall 2024',
-            department: 'Physics',
-            created: '2024-09-10',
-            status: 'pending'
-        }
-    ],
-    weekSchedule: [
-        { day: 'Monday', date: 16, events: ['CS101 - 9:00', 'MATH201 - 11:00'] },
-        { day: 'Tuesday', date: 17, events: ['PHY101 - 10:00', 'CS201 - 14:00'] },
-        { day: 'Wednesday', date: 18, events: ['MATH101 - 9:00', 'CS301 - 15:00'] },
-        { day: 'Thursday', date: 19, events: ['PHY201 - 11:00', 'MATH301 - 13:00'] },
-        { day: 'Friday', date: 20, events: ['CS401 - 9:00', 'LAB - 14:00'] }
-    ]
+    stats: {},
+    timetableHistory: [],
+    activityFeed: [],
+    calendarEvents: []
 };
+let calendar;
+let currentAdmin = {};
 
-// Initialize dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDashboard();
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/admin';
+        return;
+    }
+
+    await initializeDashboard(token);
+    initializeCalendar();
     updateDateTime();
-    generateCalendar();
-    
-    // Update date/time every minute
     setInterval(updateDateTime, 60000);
-});
 
-// Initialize dashboard functionality
-// Replace the problematic navigation code with this:
-function initializeDashboard() {
-    // Add sidebar toggle functionality
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    
     if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
         });
     }
 
-    // FIXED navigation functionality
-    const navLinks = document.querySelectorAll('.nav-link');
-    /*  navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            
-            // Only prevent default for # links (like #settings)
-            if (href.startsWith('#')) {
-                e.preventDefault();
-                
-                // Remove active class from all nav items
-                document.querySelectorAll('.nav-item').forEach(item => {
-                    item.classList.remove('active');
-                });
-                
-                // Add active class to clicked item
-                this.parentElement.classList.add('active');
-                
-                // Handle navigation for # links only
-                handleNavigation(href);
-            }
-            // For .html links, let the browser navigate normally (don't prevent default)
-        });
-    });*/
+    // ✅ NEW: Setup WebSocket connection
+    setupWebSocket();
+    // ✅ NEW: Request notification permission
+    requestNotificationPermission();
+    // ✅ NEW: Register service worker
+    registerServiceWorker();
+});
+// ✅ NEW FUNCTION: Register service worker
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/service-worker.js');
+            console.log('✅ Service Worker registered:', registration);
+        } catch (error) {
+            console.error('❌ Service Worker registration failed:', error);
+        }
+    } else {
+        console.log('⚠️ Service Workers not supported in this browser');
+    }
+}
 
-    // Close modals when clicking outside
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            closeModal(e.target.id);
+
+
+async function initializeDashboard(token) {
+    try {
+        // Fetch admin profile
+        const userResponse = await fetch('http://127.0.0.1:8000/admin/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (userResponse.ok) {
+            currentAdmin = await userResponse.json();
+            updateAdminProfile();
+        }
+
+        // Fetch stats
+        const statsResponse = await fetch('http://127.0.0.1:8000/admin/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (statsResponse.ok) {
+            dashboardData.stats = await statsResponse.json();
+            updateStats();
+        }
+
+        // Fetch timetable history
+        const historyResponse = await fetch('http://127.0.0.1:8000/admin/timetable_history', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (historyResponse.ok) {
+            dashboardData.timetableHistory = await historyResponse.json();
+            updateTimetableHistory();
+            updateCalendarEvents();
+        }
+
+        // Fetch activity feed
+        const activityResponse = await fetch('http://127.0.0.1:8000/admin/activity_feed', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (activityResponse.ok) {
+            dashboardData.activityFeed = await activityResponse.json();
+            updateActivityFeed();
+        }
+
+        await updateModuleCounts();
+
+    } catch (error) {
+        console.error('Dashboard initialization error:', error);
+        showNotification('Error loading dashboard data: ' + error.message, 'error');
+    }
+}
+
+function updateAdminProfile() {
+    const adminNameEl = document.getElementById('adminName');
+    if (adminNameEl) {
+        adminNameEl.textContent = currentAdmin.fullName || currentAdmin.username || 'Admin';
+    }
+
+    const profileImgs = document.querySelectorAll('.profile-img');
+    profileImgs.forEach(img => {
+        if (currentAdmin.photo && currentAdmin.photo !== 'https://via.placeholder.com/40') {
+            img.src = currentAdmin.photo;
         }
     });
 
-    // Add animations to dashboard elements
-    animateElements();
-}
-// Update current date and time
-function updateDateTime() {
-    const now = new Date();
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    };
-    
-    const dateTimeElement = document.getElementById('currentDateTime');
-    if (dateTimeElement) {
-        dateTimeElement.textContent = now.toLocaleDateString('en-US', options);
+    const welcomeMsg = document.querySelector('.header-left p');
+    if (welcomeMsg) {
+        welcomeMsg.textContent = `Welcome ${currentAdmin.fullName || currentAdmin.username}! Here's what's happening with your timetables.`;
     }
 }
 
-// Generate calendar for the week
-function generateCalendar() {
-    const calendarBody = document.getElementById('calendarBody');
-    if (!calendarBody) return;
+function updateStats() {
+    const stats = dashboardData.stats;
+    document.getElementById('totalClasses').textContent = stats.totalClasses || 0;
+    document.getElementById('totalSubjects').textContent = stats.totalSubjects || 0;
+    document.getElementById('totalTeachers').textContent = stats.totalTeachers || 0;
+    document.getElementById('totalRooms').textContent = stats.totalRooms || 0;
+}
 
-    calendarBody.innerHTML = '';
+function updateTimetableHistory() {
+    const timetableList = document.getElementById('timetableList');
+    if (!timetableList) return;
 
-    dashboardData.weekSchedule.forEach(dayData => {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day';
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = dayData.date;
-        dayElement.appendChild(dayNumber);
+    timetableList.innerHTML = '';
 
-        dayData.events.forEach(event => {
-            const eventElement = document.createElement('div');
-            eventElement.className = 'calendar-event';
-            eventElement.textContent = event;
-            eventElement.title = event;
-            dayElement.appendChild(eventElement);
-        });
+    const recent = dashboardData.timetableHistory.slice(0, 5);
 
-        calendarBody.appendChild(dayElement);
+    if (recent.length === 0) {
+        timetableList.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #718096;">
+                <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>No timetables generated yet</p>
+                <button class="btn primary" onclick="generateTimetable()" style="margin-top: 1rem;">
+                    Generate Your First Timetable
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    recent.forEach(slot => {
+        const item = document.createElement('div');
+        item.className = 'timetable-item fade-in';
+
+        const createdDate = slot.created ? new Date(slot.created).toLocaleDateString() : 'Recently';
+
+        item.innerHTML = `
+            <div class="timetable-info">
+                <h4>${slot.subject} (${slot.subject_code})</h4>
+                <p>${slot.day} at ${slot.time} - ${slot.room} | ${slot.type}</p>
+                <small style="color: #718096;">Created by ${slot.created_by} on ${createdDate}</small>
+            </div>
+            <div class="timetable-status ${slot.status}">
+                <span>${slot.status}</span>
+            </div>
+            <div class="timetable-actions">
+                <button class="btn-small" onclick="viewTimetableDetails('${slot.id}')" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        `;
+        timetableList.appendChild(item);
     });
 }
 
-// Handle navigation between sections
-// Handle navigation between sections (only for # links)
-function handleNavigation(section) {
-    console.log('Navigating to:', section);
-    
-    switch(section) {
-        case '#dashboard':
-            // Already on dashboard
-            break;
-        case '#settings':
-            loadSettingsSection();
-            break;
-        default:
-            console.log('Unknown section:', section);
+function updateActivityFeed() {
+    const activityList = document.getElementById('activityList');
+    if (!activityList) return;
+
+    activityList.innerHTML = '';
+
+    const activities = dashboardData.activityFeed.slice(0, 5);
+
+    if (activities.length === 0) {
+        activityList.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #718096;">
+                <i class="fas fa-history" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                <p>No recent activity</p>
+            </div>
+        `;
+        return;
+    }
+
+    activities.forEach(activity => {
+        const item = document.createElement('div');
+        item.className = 'activity-item slide-in';
+
+        const iconMap = {
+            'timetable_generated': 'fa-calendar-plus',
+            'profile_update': 'fa-user-edit',
+            'course_added': 'fa-book',
+            'teacher_added': 'fa-user-plus',
+            'student_added': 'fa-user-graduate'
+        };
+
+        const icon = iconMap[activity.action] || 'fa-info-circle';
+        const timeAgo = getTimeAgo(activity.timestamp);
+
+        item.innerHTML = `
+            <div class="activity-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="activity-content">
+                <p><strong>${activity.description}</strong></p>
+                <span>By ${activity.username}</span>
+                <time>${timeAgo}</time>
+            </div>
+        `;
+        activityList.appendChild(item);
+    });
+}
+
+function getTimeAgo(timestamp) {
+    if (!timestamp) return 'Recently';
+
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now - past;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+
+    return past.toLocaleDateString();
+}
+
+function updateCalendarEvents() {
+    dashboardData.calendarEvents = dashboardData.timetableHistory.map(slot => {
+        const eventDate = slot.date ? new Date(slot.date) : new Date();
+        const [hours, minutes] = (slot.time || '09:00').split(':');
+        eventDate.setHours(parseInt(hours), parseInt(minutes), 0);
+
+        return {
+            title: `${slot.subject} - ${slot.type}`,
+            start: eventDate.toISOString(),
+            extendedProps: {
+                room: slot.room,
+                instructor: slot.instructor,
+                type: slot.type,
+                students: slot.students
+            },
+            color: '#667eea'
+        };
+    });
+
+    if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(dashboardData.calendarEvents);
     }
 }
 
-// Update loadSettingsSection to show something useful
-function loadSettingsSection() {
-    showNotification('Settings panel would open here', 'info');
-    // You could open a settings modal here instead
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: dashboardData.calendarEvents,
+        eventClick: function(info) {
+            const props = info.event.extendedProps;
+            showNotification(
+                `${info.event.title}\nRoom: ${props.room}\nInstructor: ${props.instructor}\nStudents: ${props.students}`,
+                'info'
+            );
+        },
+        height: 'auto',
+        contentHeight: 500
+    });
+    calendar.render();
 }
 
-// Section loading functions (placeholders)
-function loadTimetablesSection() {
-    showNotification('Timetables section would load here', 'info');
+async function updateModuleCounts() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const studentsRes = await fetch('http://127.0.0.1:8000/admin/students', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (studentsRes.ok) {
+            const students = await studentsRes.json();
+            const el = document.getElementById('studentsCount');
+            if (el) el.innerHTML = `<span>${students.length} students registered</span>`;
+        }
+
+        const teachersRes = await fetch('http://127.0.0.1:8000/admin/teachers', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (teachersRes.ok) {
+            const teachers = await teachersRes.json();
+            const el = document.getElementById('teachersCount');
+            if (el) el.innerHTML = `<span>${teachers.length} teachers on staff</span>`;
+        }
+
+        const coursesRes = await fetch('http://127.0.0.1:8000/admin/courses', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (coursesRes.ok) {
+            const courses = await coursesRes.json();
+            const el = document.getElementById('coursesCount');
+            if (el) el.innerHTML = `<span>${courses.length} courses available</span>`;
+        }
+
+        const classroomsRes = await fetch('http://127.0.0.1:8000/admin/classrooms', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (classroomsRes.ok) {
+            const classrooms = await classroomsRes.json();
+            const el = document.getElementById('classroomsCount');
+            if (el) el.innerHTML = `<span>${classrooms.length} rooms available</span>`;
+        }
+
+    } catch (err) {
+        console.error('Error fetching module counts:', err);
+    }
 }
 
-function loadSubjectsSection() {
-    showNotification('Subjects section would load here', 'info');
+function updateDateTime() {
+    const now = new Date();
+    const el = document.getElementById('currentDateTime');
+    if (el) {
+        el.textContent = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 }
 
-function loadTeachersSection() {
-    showNotification('Teachers section would load here', 'info');
+// Profile Management Functions
+function openProfileModal() {
+    document.getElementById('profileFirstName').value = currentAdmin.firstName || '';
+    document.getElementById('profileLastName').value = currentAdmin.lastName || '';
+    document.getElementById('profileDepartment').value = currentAdmin.department || '';
+    document.getElementById('profilePhone').value = currentAdmin.phone || '';
+
+    if (currentAdmin.photo && currentAdmin.photo !== 'https://via.placeholder.com/40') {
+        document.getElementById('photoPreviewImg').src = currentAdmin.photo;
+        document.getElementById('photoPreview').style.display = 'block';
+    }
+
+    const photoInput = document.getElementById('profilePhoto');
+    photoInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('photoPreviewImg').src = event.target.result;
+                document.getElementById('photoPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    openModal('profileModal');
 }
 
-function loadRoomsSection() {
-    showNotification('Rooms section would load here', 'info');
+async function submitProfileUpdate() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Please log in again', 'error');
+        return;
+    }
+
+    const firstName = document.getElementById('profileFirstName').value.trim();
+    const lastName = document.getElementById('profileLastName').value.trim();
+    const department = document.getElementById('profileDepartment').value;
+    const phone = document.getElementById('profilePhone').value.trim();
+    const photoFile = document.getElementById('profilePhoto').files[0];
+
+    try {
+        showNotification('Updating profile...', 'info');
+
+        let photoUrl = currentAdmin.photo;
+
+        if (photoFile) {
+            const formData = new FormData();
+            formData.append('file', photoFile);
+
+            const photoResponse = await fetch('http://127.0.0.1:8000/admin/upload_photo', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (photoResponse.ok) {
+                const photoResult = await photoResponse.json();
+                photoUrl = photoResult.photo;
+            } else {
+                throw new Error('Failed to upload photo');
+            }
+        }
+
+        const profileData = {
+            firstName: firstName || null,
+            lastName: lastName || null,
+            department: department || null,
+            phone: phone || null,
+            photo: photoUrl || null
+        };
+
+        const response = await fetch('http://127.0.0.1:8000/admin/profile', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(profileData)
+        });
+
+        if (response.ok) {
+            showNotification('Profile updated successfully!', 'success');
+            closeModal('profileModal');
+            await initializeDashboard(token);
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to update profile');
+        }
+
+    } catch (err) {
+        showNotification('Error: ' + err.message, 'error');
+    }
 }
 
-function loadSettingsSection() {
-    showNotification('Settings section would load here', 'info');
-}
-
-// Quick action functions
 function generateTimetable() {
     openModal('generateModal');
 }
 
+async function submitGenerate() {
+    const form = document.getElementById('generateForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+    const data = {
+        semester: document.getElementById('semester').value,
+        department: document.getElementById('department').value,
+        timeSlots: parseInt(document.getElementById('timeSlots').value)
+    };
+
+    showNotification('Generating timetable...', 'info');
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/admin/generate_timetable', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showNotification(`Timetable generated successfully! Created ${result.slots_created} slots.`, 'success');
+            closeModal('generateModal');
+            await initializeDashboard(token);
+        } else {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to generate timetable');
+        }
+    } catch (err) {
+        showNotification('Error: ' + err.message, 'error');
+    }
+}
+
 function importData() {
-    // Create a file input element
+    openModal('importModal');
+}
+
+async function importFile(type) {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
-    fileInput.accept = '.csv,.xlsx,.json';
-    
-    fileInput.onchange = function(e) {
+    fileInput.accept = '.csv';
+
+    fileInput.onchange = async function(e) {
         const file = e.target.files[0];
-        if (file) {
-            showNotification(`Importing data from ${file.name}...`, 'info');
-            // Simulate import process
-            setTimeout(() => {
-                showNotification('Data imported successfully!', 'success');
-                updateStats();
-            }, 2000);
+        if (!file) return;
+
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const endpoints = {
+            'teachers': '/admin/upload_teachers',
+            'courses': '/admin/upload_courses',
+            'classrooms': '/admin/upload_classrooms',
+            'students': '/admin/upload_students'
+        };
+
+        showNotification(`Uploading ${type}...`, 'info');
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000${endpoints[type]}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(`Success! Added: ${result.added}, Updated: ${result.updated || 0}`, 'success');
+                closeModal('importModal');
+                await initializeDashboard(token);
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || `Failed to upload ${type}`);
+            }
+        } catch (err) {
+            showNotification('Error: ' + err.message, 'error');
         }
     };
-    
+
     fileInput.click();
 }
 
-function exportTimetable() {
-    showNotification('Preparing timetable export...', 'info');
-    
-    // Simulate export process
-    setTimeout(() => {
-        // Create a download link
-        const link = document.createElement('a');
-        link.href = 'data:text/plain;charset=utf-8,Timetable Export Data';
-        link.download = 'timetable-export.csv';
-        link.click();
-        
-        showNotification('Timetable exported successfully!', 'success');
-    }, 1500);
-}
-
-function openSettings() {
-    showNotification('Settings panel would open here', 'info');
-}
-
-// Timetable management functions
-function viewTimetable(timetableId) {
-    showNotification(`Viewing timetable: ${timetableId}`, 'info');
-}
-
-function editTimetable(timetableId) {
-    showNotification(`Editing timetable: ${timetableId}`, 'info');
-}
-
-// Modal functions
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -262,110 +553,28 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
-        // Reset form if it exists
-        const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
     }
 }
 
-// Form submission functions
-function submitGenerate() {
-    const form = document.getElementById('generateForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const formData = new FormData(form);
-    const data = {
-        semester: formData.get('semester'),
-        department: formData.get('department'),
-        timeSlots: formData.get('timeSlots')
-    };
-
-    showNotification('Generating timetable...', 'info');
-    
-    // Simulate timetable generation
-    setTimeout(() => {
-        showNotification('Timetable generated successfully!', 'success');
-        closeModal('generateModal');
-        
-        // Add new timetable to recent list
-        const newTimetable = {
-            id: `${data.department}-${data.semester}`,
-            name: `${data.department} - ${data.semester}`,
-            department: data.department,
-            created: new Date().toISOString().split('T')[0],
-            status: 'completed'
-        };
-        
-        dashboardData.recentTimetables.unshift(newTimetable);
-        updateRecentTimetables();
-        updateStats();
-    }, 3000);
-}
-
-// Update dashboard statistics
-function updateStats() {
-    // Simulate data update
-    dashboardData.stats.totalClasses += Math.floor(Math.random() * 3);
-    dashboardData.stats.totalSubjects += Math.floor(Math.random() * 2);
-    
-    // Update DOM
-    document.getElementById('totalClasses').textContent = dashboardData.stats.totalClasses;
-    document.getElementById('totalSubjects').textContent = dashboardData.stats.totalSubjects;
-    document.getElementById('totalTeachers').textContent = dashboardData.stats.totalTeachers;
-    document.getElementById('totalRooms').textContent = dashboardData.stats.totalRooms;
-}
-
-// Update recent timetables list
-function updateRecentTimetables() {
-    const timetableList = document.querySelector('.timetable-list');
-    if (!timetableList) return;
-
-    timetableList.innerHTML = '';
-
-    dashboardData.recentTimetables.slice(0, 3).forEach(timetable => {
-        const item = document.createElement('div');
-        item.className = 'timetable-item';
-        
-        item.innerHTML = `
-            <div class="timetable-info">
-                <h4>${timetable.name}</h4>
-                <p>Created on ${new Date(timetable.created).toLocaleDateString()}</p>
-            </div>
-            <div class="timetable-status ${timetable.status}">
-                <span>${timetable.status.charAt(0).toUpperCase() + timetable.status.slice(1)}</span>
-            </div>
-            <div class="timetable-actions">
-                <button class="btn-small" onclick="viewTimetable('${timetable.id}')">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn-small" onclick="editTimetable('${timetable.id}')">
-                    <i class="fas fa-edit"></i>
-                </button>
-            </div>
-        `;
-        
-        timetableList.appendChild(item);
-    });
-}
-
-// Notification system
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
-
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
+
+    const iconMap = {
+        'success': 'check-circle',
+        'error': 'exclamation-circle',
+        'info': 'info-circle'
+    };
+
+    const colorMap = {
+        'success': '#38a169',
+        'error': '#e53e3e',
+        'info': '#667eea'
+    };
+
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <i class="fas fa-${iconMap[type]}"></i>
             <span>${message}</span>
         </div>
         <button class="notification-close" onclick="this.parentElement.remove()">
@@ -373,179 +582,233 @@ function showNotification(message, type = 'info') {
         </button>
     `;
 
-    // Add styles
     notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        border-left: 4px solid ${getNotificationColor(type)};
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
-        padding: 1rem;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        min-width: 300px;
-        animation: slideInRight 0.3s ease;
+        position: fixed; top: 20px; right: 20px; background: white;
+        border-left: 4px solid ${colorMap[type]};
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-radius: 8px; padding: 1rem; z-index: 10000;
+        display: flex; align-items: center; gap: 1rem; min-width: 300px;
+        animation: slideIn 0.3s ease-out;
     `;
 
-    // Add to DOM
     document.body.appendChild(notification);
-
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }
-    }, 5000);
+    setTimeout(() => notification.remove(), 5000);
 }
 
-function getNotificationIcon(type) {
-    switch(type) {
-        case 'success': return 'check-circle';
-        case 'error': return 'exclamation-circle';
-        case 'warning': return 'exclamation-triangle';
-        default: return 'info-circle';
+function logout() {
+    localStorage.removeItem('token');
+    window.location.href = '/admin';
+}
+
+function viewTimetableDetails(id) {
+    showNotification(`Viewing details for timetable: ${id}`, 'info');
+}
+
+// websocket connection function ----------------------------
+
+function setupWebSocket() {
+    // Get user info from localStorage
+    const userId = localStorage.getItem('user_id');
+    const username = localStorage.getItem('username') || 'Admin';
+    const role = 'admin';
+
+    if (!userId) {
+        console.warn('⚠️ No user ID found, skipping WebSocket');
+        return;
+    }
+
+    // Connect to WebSocket
+    window.wsClient.connect(userId, username, role);
+
+    // Handle incoming messages
+    window.wsClient.onMessage((data) => {
+        handleWebSocketMessage(data);
+    });
+}
+
+function handleWebSocketMessage(data) {
+    console.log('📨 Admin received:', data);
+
+    switch(data.type) {
+        case 'connection_established':
+            console.log('✅ Real-time connection established');
+            break;
+
+        case 'students_imported':
+        case 'student_registered':
+        case 'student_updated':
+            // ✅ In-app notification (what you had)
+            showNotification(`📚 ${data.message}`, 'success');
+
+            // ✅ NEW: Browser notification
+            showBrowserNotification(
+                '👥 Student Update',
+                data.message,
+                {
+                    icon: 'https://via.placeholder.com/128?text=📚',
+                    tag: 'student-update',
+                    onClick: () => {
+                        window.location.href = 'students.html';
+                    }
+                }
+            );
+
+            // ✅ Refresh dashboard (what you had)
+            if (typeof initializeDashboard === 'function') {
+                initializeDashboard(localStorage.getItem('token'));
+            }
+            if (typeof updateModuleCounts === 'function') {
+                updateModuleCounts();
+            }
+            break;
+
+        case 'teachers_imported':
+        case 'teacher_registered':
+        case 'teacher_added':
+        case 'teacher_updated':
+            // ✅ In-app notification
+            showNotification(`👨‍🏫 ${data.message}`, 'success');
+
+            // ✅ NEW: Browser notification
+            showBrowserNotification(
+                '👨‍🏫 Teacher Update',
+                data.message,
+                {
+                    icon: 'https://via.placeholder.com/128?text=👨‍🏫',
+                    tag: 'teacher-update',
+                    onClick: () => {
+                        window.location.href = 'teachers.html';
+                    }
+                }
+            );
+
+            // ✅ Refresh dashboard
+            if (typeof initializeDashboard === 'function') {
+                initializeDashboard(localStorage.getItem('token'));
+            }
+            if (typeof updateModuleCounts === 'function') {
+                updateModuleCounts();
+            }
+            break;
+
+        case 'timetable_generated':
+        case 'timetable_updated':
+            // ✅ In-app notification
+            showNotification(`📅 ${data.message}`, 'success');
+
+            // ✅ NEW: Browser notification
+            showBrowserNotification(
+                '📅 Timetable Update',
+                data.message,
+                {
+                    icon: 'https://via.placeholder.com/128?text=📅',
+                    tag: 'timetable-update',
+                    onClick: () => {
+                        window.location.href = 'timetable.html';
+                    }
+                }
+            );
+
+            // ✅ Refresh dashboard
+            if (typeof initializeDashboard === 'function') {
+                initializeDashboard(localStorage.getItem('token'));
+            }
+            break;
+
+        default:
+            console.log('Unknown message type:', data.type);
     }
 }
 
-function getNotificationColor(type) {
-    switch(type) {
-        case 'success': return '#38a169';
-        case 'error': return '#e53e3e';
-        case 'warning': return '#ed8936';
-        default: return '#667eea';
+//✅ NEW FUNCTION: Request browser notification permission
+function requestNotificationPermission() {
+    // Check if browser supports notifications
+    if (!("Notification" in window)) {
+        console.log("❌ This browser doesn't support notifications");
+        return;
+    }
+
+    // Check current permission status
+    console.log("Current notification permission:", Notification.permission);
+
+    if (Notification.permission === "granted") {
+        console.log("✅ Notifications already enabled");
+        return;
+    }
+
+    // If user hasn't decided yet, ask them
+    if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === "granted") {
+                console.log("✅ User allowed notifications!");
+
+                // Show welcome notification
+                new Notification("🎉 TimeWeaver Notifications", {
+                    body: "You'll now receive updates even when in another tab!",
+                    icon: "https://via.placeholder.com/128?text=TW",
+                    tag: "welcome"
+                });
+            } else {
+                console.log("❌ User denied notifications");
+            }
+        });
     }
 }
 
-// Animation functions
-function animateElements() {
-    // Add fade-in animation to dashboard elements
-    const elements = document.querySelectorAll('.stat-card, .action-btn, .timetable-item, .activity-item');
-    elements.forEach((element, index) => {
-        element.style.opacity = '0';
-        element.style.transform = 'translateY(20px)';
-        
+// ✅ NEW FUNCTION: Show browser notification
+function showBrowserNotification(title, message, options = {}) {
+    console.log("📢 Attempting to show browser notification:", title);
+
+    // Check if notifications are supported
+    if (!("Notification" in window)) {
+        console.log("❌ Browser doesn't support notifications");
+        // Fallback to in-app notification
+        showNotification(message, 'info');
+        return;
+    }
+
+    // Check if user gave permission
+    if (Notification.permission === "granted") {
+        console.log("✅ Permission granted, showing notification");
+
+        // Create notification
+        const notification = new Notification(title, {
+            body: message,
+            icon: options.icon || "https://via.placeholder.com/128?text=TW",
+            badge: "https://via.placeholder.com/96?text=TW",
+            tag: options.tag || "timeweaver",
+            requireInteraction: false,  // Auto-dismiss after few seconds
+            silent: false  // Make sound
+        });
+
+        // When user clicks notification
+        notification.onclick = function(event) {
+            event.preventDefault();
+            console.log("👆 Notification clicked");
+            window.focus();  // Bring window to front
+            notification.close();
+
+            // Custom action if provided
+            if (options.onClick) {
+                options.onClick();
+            }
+        };
+
+        // Auto-close after 10 seconds
         setTimeout(() => {
-            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
+            notification.close();
+        }, 10000);
+
+    } else if (Notification.permission === "denied") {
+        console.log("❌ User denied notification permission");
+        // Fallback to in-app notification
+        showNotification(message, 'info');
+    } else {
+        console.log("⚠️ Permission not yet granted, asking now...");
+        // Ask for permission first
+        requestNotificationPermission();
+        // Then show in-app notification as fallback
+        showNotification(message, 'info');
+    }
 }
 
-// Add CSS for notifications
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    .notification {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex: 1;
-    }
-    
-    .notification-content i {
-        font-size: 1.2rem;
-    }
-    
-    .notification-close {
-        background: none;
-        border: none;
-        font-size: 1rem;
-        color: #718096;
-        cursor: pointer;
-        padding: 0.25rem;
-        border-radius: 4px;
-        transition: background-color 0.2s ease;
-    }
-    
-    .notification-close:hover {
-        background: #f7fafc;
-    }
-    
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(notificationStyles);
-
-// Utility functions
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-function formatTime(time) {
-    return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    });
-}
-
-// Export functions for external use
-window.dashboardAPI = {
-    generateTimetable,
-    importData,
-    exportTimetable,
-    viewTimetable,
-    editTimetable,
-    showNotification,
-    updateStats
-};
-
-// Handle window resize for responsive behavior
-window.addEventListener('resize', function() {
-    // Close sidebar on mobile when window is resized
-    if (window.innerWidth > 768) {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.classList.remove('active');
-    }
-});
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + N: Generate new timetable
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-        e.preventDefault();
-        generateTimetable();
-    }
-    
-    // Escape: Close modals
-    if (e.key === 'Escape') {
-        const activeModal = document.querySelector('.modal.active');
-        if (activeModal) {
-            closeModal(activeModal.id);
-        }
-    }
-});
-
-console.log('Timetable Generator Dashboard loaded successfully!');
