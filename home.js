@@ -56,24 +56,21 @@ document.addEventListener('DOMContentLoaded', function() {
     addScrollEffects();
 });
 
-// Portal navigation function
-function navigateToPortal(portal) {
-    // Add click animation
-    event.target.style.transform = 'scale(0.95)';
-    
+// ==============================navigation function========================
+function navigateToPortal(event, portal) {
+    const btn = event.target; // save reference to the button
+    btn.style.transform = 'scale(0.95)';
     setTimeout(() => {
-        event.target.style.transform = '';
-        
-        // Navigate to respective signup/login pages
+        btn.style.transform = '';
         switch(portal) {
             case 'admin':
-                window.location.href = 'admin-signup.html'; // Replace with your actual admin signup page
+                window.location.href = 'admin_login.html';
                 break;
             case 'student':
-                window.location.href = 'student-signup.html'; // Replace with your actual student signup page
+                window.location.href = 'student_login.html';
                 break;
             case 'faculty':
-                window.location.href = 'faculty-signup.html'; // Replace with your actual faculty signup page
+                window.location.href = 'faculty_login.html';
                 break;
             default:
                 console.log('Unknown portal:', portal);
