@@ -185,68 +185,108 @@
             }
         }
 
-        signupForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-            console.log('Signup form submitted');
-            const formData = new FormData(signupForm);
-            if (formData.get('password') !== formData.get('confirm-password')) {
-                messageDiv.textContent = 'Error: Passwords do not match';
-                messageDiv.style.color = 'red';
-                console.error('Password mismatch');
-                return;
-            }
-            const data = {
-                username: formData.get('username'),
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
+    signupForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    console.log('Signup form submitted');
+    const formData = new FormData(signupForm);
+    if (formData.get('password') !== formData.get('confirm-password')) {
+        messageDiv.textContent = 'Error: Passwords do not match';
+        messageDiv.style.color = 'red';
+        console.error('Password mismatch');
+        return;
+    }
+    const data = {
+        username: formData.get('username'),
+        email: formData.get('email'),
+        password: formData.get('password')
+    };
 
-            if (!data.email || !data.email.includes('@')) {
-                messageDiv.textContent = 'Please enter a valid email';
-                messageDiv.style.color = 'red';
-                console.error('Invalid email');
-                return;
-            }
-            if (!data.password || data.password.length < 6) {
-                messageDiv.textContent = 'Password must be at least 6 characters';
-                messageDiv.style.color = 'red';
-                console.error('Password too short');
-                return;
-            }
-            if (!data.username) {
-                messageDiv.textContent = 'Please enter a username';
-                messageDiv.style.color = 'red';
-                console.error('Username missing');
-                return;
-            }
+    if (!data.email || !data.email.includes('@')) {
+        messageDiv.textContent = 'Please enter a valid email';
+        messageDiv.style.color = 'red';
+        console.error('Invalid email');
+        return;
+    }
+    if (!data.password || data.password.length < 6) {
+        messageDiv.textContent = 'Password must be at least 6 characters';
+        messageDiv.style.color = 'red';
+        console.error('Password too short');
+        return;
+    }
+    if (!data.username) {
+        messageDiv.textContent = 'Please enter a username';
+        messageDiv.style.color = 'red';
+        console.error('Username missing');
+        return;
+    }
 
-            try {
-                console.log('Sending signup request to /student_signup');
-                const response = await fetch('http://127.0.0.1:8000/student_signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    messageDiv.textContent = result.message + ' Please login to continue.';
-                    messageDiv.style.color = 'green';
-                    console.log('Signup successful:', result);
-                    signupForm.reset();
+    try {
+        console.log('Sending signup request to /student_signup');
+        const response = await fetch('http://127.0.0.1:8000/student_signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            messageDiv.textContent = result.message + ' Please login to continue.';
+            messageDiv.style.color = 'green';
+            console.log('Signup successful:', result);
+            signupForm.reset();
+            toggleCheckbox.checked = false;
+            flipper.classList.remove('flip');
+            adjustFlipperHeight();
+        } else {
+            // ✅ ENHANCED ERROR HANDLING
+            const errorDetail = result.detail;
+
+            if (response.status === 403) {
+                // Email not in whitelist
+                messageDiv.innerHTML = `
+                    <strong>❌ Registration Not Allowed</strong><br>
+                    ${errorDetail}<br>
+                    <small style="font-size: 0.85em;">Your email must be registered by your administrator before you can sign up.</small>
+                `;
+                messageDiv.style.color = 'red';
+                messageDiv.style.background = '#ffe6e6';
+                messageDiv.style.padding = '1rem';
+                messageDiv.style.borderRadius = '8px';
+                messageDiv.style.marginTop = '1rem';
+            } else if (response.status === 400) {
+                // Email already registered
+                messageDiv.innerHTML = `
+                    <strong>⚠️ Email Already Registered</strong><br>
+                    ${errorDetail}<br>
+                    <small style="font-size: 0.85em;">Please use the Login form instead.</small>
+                `;
+                messageDiv.style.color = '#d97706';
+                messageDiv.style.background = '#fff3cd';
+                messageDiv.style.padding = '1rem';
+                messageDiv.style.borderRadius = '8px';
+                messageDiv.style.marginTop = '1rem';
+
+                // Auto-switch to login after 2 seconds
+                setTimeout(() => {
                     toggleCheckbox.checked = false;
                     flipper.classList.remove('flip');
                     adjustFlipperHeight();
-                } else {
-                    messageDiv.textContent = 'Error: ' + result.detail;
-                    messageDiv.style.color = 'red';
-                    console.error('Signup failed:', result.detail);
-                }
-            } catch (error) {
-                messageDiv.textContent = 'Error: ' + error.message;
+                }, 2000);
+            } else {
+                // Other errors
+                messageDiv.textContent = 'Error: ' + errorDetail;
                 messageDiv.style.color = 'red';
-                console.error('Signup error:', error);
             }
-        });
+            console.error('Signup failed:', result.detail);
+        }  // ← This closes the "else" block
+
+    } catch (error) {  // ← This catches network errors
+        messageDiv.textContent = 'Connection error: ' + error.message;
+        messageDiv.style.color = 'red';
+        console.error('Signup error:', error);
+    }
+});  // ← This closes the event listener
+
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();

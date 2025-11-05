@@ -1,4 +1,4 @@
-// courses management page
+
     let coursesData = [];
     let filteredCourses = [];
     let currentPage = 1;
@@ -372,4 +372,3 @@
     }
 
     console.log('Course management system loaded successfully!');
-   

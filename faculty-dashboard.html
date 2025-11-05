@@ -1,0 +1,920 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+   <link rel="stylesheet" href="faculty_dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="websocket-client.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-chalkboard-teacher"></i> Faculty Dashboard</h1>
+                <div class="user-info">
+                    <span class="welcome-text">Welcome, <strong id="facultyName"> </strong></span>
+                    <div class="user-actions">
+                        <div class="availability-toggle">
+                            <span class="availability-label">Status:</span>
+                            <button class="availability-btn" id="availabilityBtn" onclick="toggleAvailability()">
+                                <i class="fas fa-circle" id="statusIcon"></i>
+                                <span id="statusText"></span>
+                            </button>
+                        </div>
+                        <button class="btn-export" onclick="exportSchedule()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn-sync" onclick="syncTimetable()">
+                            <i class="fas fa-sync"></i> Sync
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Faculty Info Card -->
+                <div class="faculty-card">
+                    <div class="faculty-avatar" style="position:relative;display:inline-block;">
+
+    <img id="facultyPhoto"
+         src="https://ui-avatars.com/api/?name=Faculty&size=80&background=e2afff&color=5a4b75"
+         alt="Faculty Photo"
+         style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid white;box-shadow:0 4px 15px rgba(255,255,255,0.4);"
+         onerror="this.src='https://ui-avatars.com/api/?name=Faculty&size=80&background=e2afff&color=5a4b75'">
+    <button onclick="uploadFacultyPhoto()"
+            style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:#e2afff;color:#5a4b75;border:2px solid white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 2px 8px rgba(255,255,255,0.4);transition:all 0.3s ease;"
+            title="Change Photo"
+            onmouseenter="this.style.background='#d89cff'"
+            onmouseleave="this.style.background='#e2afff'">
+        <i class="fas fa-camera"></i>
+    </button>
+</div>
+                    <div class="faculty-details">
+                        <h3 id="facultyID"></h3>
+                        <p id="facultyDepartment"></p>
+                        <p id="facultyPosition"></p>
+                        <div class="faculty-status" id="facultyStatus">
+                            <i class="fas fa-circle status-indicator" id="sidebarStatusIcon"></i>
+                            <span id="sidebarStatusText"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability Management -->
+                <div class="availability-management">
+                    <h4><i class="fas fa-calendar-check"></i> Availability Management</h4>
+                    <div class="availability-options">
+                        <div class="availability-option">
+                            <button class="status-btn available active" onclick="setStatus('available')">
+                                <i class="fas fa-circle"></i> Available
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn busy" onclick="setStatus('busy')">
+                                <i class="fas fa-circle"></i> Busy
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn unavailable" onclick="setStatus('unavailable')">
+                                <i class="fas fa-circle"></i> Unavailable
+                            </button>
+                        </div>
+                        <div class="availability-option">
+                            <button class="status-btn on-leave" onclick="setStatus('on-leave')">
+                                <i class="fas fa-circle"></i> On Leave
+                            </button>
+                        </div>
+                    </div>
+                    <div class="status-note">
+                        <textarea id="statusNote" placeholder="Add a note about your availability..." rows="3"></textarea>
+                        <button class="update-note-btn" onclick="updateStatusNote()">
+                            <i class="fas fa-save"></i> Update Note
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <h4><i class="fas fa-chart-bar"></i> Today's Overview</h4>
+                    <div class="stat-item">
+                        <span class="stat-label">Today's Classes:</span>
+                        <span class="stat-value" id="todayClasses">4</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">This Week:</span>
+                        <span class="stat-value" id="weekClasses">18</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Subjects:</span>
+                        <span class="stat-value" id="totalSubjects">3</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Students:</span>
+                        <span class="stat-value" id="totalStudents">125</span>
+                    </div>
+                </div>
+
+                <!-- Teaching Subjects -->
+                <div class="teaching-subjects">
+                    <h4><i class="fas fa-book-open"></i> Teaching Subjects</h4>
+                    <div class="subjects-list" id="subjectsList">
+                        <!-- Subjects will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Upcoming Classes -->
+                <div class="upcoming-classes">
+                    <h4><i class="fas fa-clock"></i> Next Classes</h4>
+                    <div class="classes-list" id="classesList">
+                        <!-- Classes will be populated by JavaScript -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Dashboard -->
+            <main class="dashboard-main">
+                <!-- View Toggle -->
+                <div class="view-controls">
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" data-view="day" onclick="switchView('day')">
+                            <i class="fas fa-calendar-day"></i> Day View
+                        </button>
+                        <button class="toggle-btn" data-view="week" onclick="switchView('week')">
+                            <i class="fas fa-calendar-week"></i> Week View
+                        </button>
+                        <button class="toggle-btn" data-view="month" onclick="switchView('month')">
+                            <i class="fas fa-calendar"></i> Month View
+                        </button>
+                    </div>
+                    <div class="date-navigation">
+                        <button class="nav-btn" onclick="navigateDate(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="current-date" id="currentDate">Today, September 19, 2025</span>
+                        <button class="nav-btn" onclick="navigateDate(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="today-btn" onclick="goToToday()">Today</button>
+                    </div>
+                </div>
+
+                <!-- Schedule Display -->
+                <div class="schedule-container">
+                    <!-- Day View -->
+                    <div class="day-view view-content active" id="dayView">
+                        <div class="time-slots">
+                            <div class="time-header">
+                                <div class="date-display" id="dayViewDate">Friday, September 19, 2025</div>
+                            </div>
+                            <div class="slots-container" id="daySlots">
+                                <!-- Time slots will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Week View -->
+                    <div class="week-view view-content" id="weekView">
+                        <div class="week-timetable" id="weekTimetable">
+                            <!-- Week timetable will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Month View -->
+                    <div class="month-view view-content" id="monthView">
+                        <div class="month-header" id="monthHeader">
+                            <!-- Month header will be populated by JavaScript -->
+                        </div>
+                        <div class="month-grid" id="monthGrid">
+                            <!-- Month grid will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Class Details Modal -->
+        <div class="modal" id="classModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Class Details</h3>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Class details will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel-class" onclick="cancelClass()">
+                        <i class="fas fa-times"></i> Cancel Class
+                    </button>
+                    <button class="btn-reschedule" onclick="rescheduleClass()">
+                        <i class="fas fa-calendar-alt"></i> Reschedule
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Update Confirmation -->
+        <div class="status-notification" id="statusNotification">
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="notificationText">Status updated successfully!</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// ===================== GLOBAL VARIABLES =====================
+const API_BASE_URL = 'http://127.0.0.1:8000';
+let authToken = null;
+let facultyData = {};
+let timetableHistory = [];
+let timetableData = {
+    monday: [], tuesday: [], wednesday: [], thursday: [],
+    friday: [], saturday: [], sunday: []
+};
+let currentView = 'day';
+let currentDate = new Date();
+const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+// ===================== INITIALIZATION =====================
+
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🎯 Faculty Dashboard Loading...');
+
+    // ✅ NEW: Check for URL parameters first
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get('token');
+    const urlUserId = urlParams.get('user_id');
+    const urlUsername = urlParams.get('username');
+    const urlRole = urlParams.get('role');
+
+    console.log('📋 URL Parameters:', {
+        token: urlToken ? 'YES' : 'NO',
+        user_id: urlUserId,
+        username: urlUsername,
+        role: urlRole
+    });
+
+    // ✅ If URL has parameters, save them to localStorage
+    if (urlToken && urlUserId) {
+        console.log('✅ Saving URL parameters to localStorage...');
+        localStorage.setItem('token', urlToken);
+        localStorage.setItem('user_id', urlUserId);
+        localStorage.setItem('username', urlUsername || 'Faculty');
+        localStorage.setItem('role', urlRole || 'faculty');
+
+        // ✅ Clean URL (remove parameters)
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
+        console.log('✅ Data saved! URL cleaned.');
+    }
+
+    // ✅ Now get token from localStorage
+    authToken = localStorage.getItem('token');
+
+    console.log('📋 localStorage contents:', {
+        token: authToken ? authToken.substring(0, 30) + '...' : 'NULL',
+        user_id: localStorage.getItem('user_id'),
+        username: localStorage.getItem('username'),
+        role: localStorage.getItem('role')
+    });
+
+    if (!authToken) {
+        console.error('❌ No token found in localStorage');
+        showNotification('Please log in to continue', 'error');
+        setTimeout(() => { window.location.href = '/faculty'; }, 1000);
+        return;
+    }
+
+    console.log('✅ Token found, proceeding...');
+
+    // ✅ Get user info
+    const userId = localStorage.getItem('user_id');
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role');
+
+    console.log('📋 User Info:', { userId, username, role });
+
+    // ✅ Request notification permission
+    requestNotificationPermission();
+
+    // ✅ Register service worker
+    registerServiceWorker();
+
+    try {
+        // ✅ Initialize dashboard
+        console.log('🔄 Initializing dashboard...');
+        await initializeDashboard();
+        console.log('✅ Dashboard initialized');
+
+        // ✅ Connect WebSocket (only if user_id exists)
+        if (userId && window.wsClient) {
+            console.log('🔌 Connecting WebSocket...');
+            window.wsClient.connect(userId, username || 'Faculty', role || 'faculty');
+        } else {
+            console.warn('⚠️ WebSocket not connected: missing user_id or wsClient');
+        }
+
+    } catch (err) {
+        console.error('❌ Dashboard initialization error:', err);
+        showNotification('Error: ' + err.message, 'error');
+        setTimeout(() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = '/faculty';
+        }, 1500);
+    }
+});
+
+
+// ✅ NEW FUNCTION: Register service worker
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/service-worker.js');
+            console.log('✅ Service Worker registered:', registration);
+        } catch (error) {
+            console.error('❌ Service Worker registration failed:', error);
+        }
+    } else {
+        console.log('⚠️ Service Workers not supported in this browser');
+    }
+}
+
+
+// ==================== BROWSER NOTIFICATION FUNCTIONS ====================
+
+// Request notification permission (runs once)
+function requestNotificationPermission() {
+    // Check if browser supports notifications
+    if (!("Notification" in window)) {
+        console.log("❌ This browser doesn't support notifications");
+        return;
+    }
+
+    console.log("📢 Current notification permission:", Notification.permission);
+
+    if (Notification.permission === "granted") {
+        console.log("✅ Notifications already enabled");
+        return;
+    }
+
+    // Ask user for permission
+    if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(function(permission) {
+            if (permission === "granted") {
+                console.log("✅ User allowed notifications!");
+
+                // Show welcome notification
+                new Notification("🎉 TimeWeaver Notifications Active", {
+                    body: "You'll receive updates even when in another tab!",
+                    icon: "https://via.placeholder.com/128?text=TW",
+                    tag: "welcome"
+                });
+            } else {
+                console.log("❌ User denied notifications");
+            }
+        });
+    }
+}
+
+// Show browser notification
+function showBrowserNotification(title, message, options = {}) {
+    console.log("📢 Attempting browser notification:", title);
+
+    // Check if notifications are supported
+    if (!("Notification" in window)) {
+        console.log("❌ Browser doesn't support notifications");
+        showNotification(message, 'info');
+        return;
+    }
+
+    // Check if user gave permission
+    if (Notification.permission === "granted") {
+        console.log("✅ Showing browser notification");
+
+        // Create notification
+        const notification = new Notification(title, {
+            body: message,
+            icon: options.icon || "https://via.placeholder.com/128?text=TW",
+            badge: "https://via.placeholder.com/96?text=TW",
+            tag: options.tag || "timeweaver-faculty",
+            requireInteraction: false,
+            silent: false
+        });
+
+        // When user clicks notification
+        notification.onclick = function(event) {
+            event.preventDefault();
+            console.log("👆 Notification clicked");
+            window.focus();
+            notification.close();
+
+            if (options.onClick) {
+                options.onClick();
+            }
+        };
+
+        // Auto-close after 10 seconds
+        setTimeout(() => notification.close(), 10000);
+
+    } else if (Notification.permission === "denied") {
+        console.log("❌ Notifications denied, using fallback");
+        showNotification(message, 'info');
+    } else {
+        console.log("⚠️ Permission not granted, requesting...");
+        requestNotificationPermission();
+        showNotification(message, 'info');
+    }
+}
+
+// ===================== DATA FETCHING & ORGANIZATION =====================
+async function initializeDashboard() {
+    // Fetch profile
+    const profileRes = await fetch(`${API_BASE_URL}/faculty/me`, {headers: {'Authorization': `Bearer ${authToken}`}});
+    if (!profileRes.ok) throw new Error('Failed to fetch profile');
+    facultyData = await profileRes.json();
+
+    // Fetch subjects
+    const subjectsRes = await fetch(`${API_BASE_URL}/faculty/subjects`, {headers: {'Authorization': `Bearer ${authToken}`}});
+    if (!subjectsRes.ok) throw new Error('Failed to fetch subjects');
+    facultyData.subjects = await subjectsRes.json();
+
+    // Fetch timetable
+    const timetableRes = await fetch(`${API_BASE_URL}/faculty/timetable_history`, {headers: {'Authorization': `Bearer ${authToken}`}});
+    if (!timetableRes.ok) throw new Error('Failed to fetch timetable');
+    timetableHistory = await timetableRes.json();
+
+    organizeTimetableData();
+    renderAll();
+}
+
+function organizeTimetableData() {
+    timetableData = {monday: [],tuesday: [],wednesday: [],thursday: [],friday: [],saturday: [],sunday: []};
+    timetableHistory.forEach(entry => {
+        const day = entry.day ? entry.day.toLowerCase() : '';
+        if (timetableData[day]) timetableData[day].push(entry);
+    });
+    Object.keys(timetableData).forEach(day => timetableData[day].sort((a,b)=>a.time.localeCompare(b.time)));
+}
+
+// ===================== RENDERING FUNCTIONS =====================
+function renderAll() {
+    renderProfile();
+    renderAvailability();
+    renderSubjects();
+    renderUpcomingClasses();
+    renderQuickStats();
+    updateDateDisplay();
+    updateCalendar();
+}
+
+
+    function renderProfile() {
+
+    document.getElementById('facultyName').textContent = facultyData.username || facultyData.email || '';
+
+    // ✅ FIX: Prioritize teacher_id/faculty_id over MongoDB _id
+
+    const facultyId = facultyData.teacher_id || facultyData.faculty_id || facultyData.id || 'N/A';
+    document.getElementById('facultyID').textContent = facultyId;
+
+    document.getElementById('facultyDepartment').textContent = facultyData.department || 'N/A';
+    document.getElementById('facultyPosition').textContent = facultyData.position || facultyData.title || 'Faculty';
+
+    // ✅ NEW: Update faculty photo
+    const facultyPhoto = document.getElementById('facultyPhoto');
+    if (facultyPhoto && facultyData.photo) {
+        if (facultyData.photo.startsWith('data:image') || facultyData.photo.startsWith('http')) {
+            facultyPhoto.src = facultyData.photo;
+        } else {
+            const name = facultyData.username || 'Faculty';
+            facultyPhoto.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=80&background=e2afff&color=5a4b75`;
+        }
+    }
+}
+function renderAvailability() {
+    const status = facultyData.currentStatus || facultyData.availability_status || 'available';
+    const note = facultyData.statusNote || facultyData.status_note || '';
+    document.getElementById('sidebarStatusText').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    document.getElementById('statusNote').value = note;
+    updateAvailabilityDisplay(status);
+}
+
+function updateAvailabilityDisplay(status) {
+    const statusMap = {
+        'available': {text:'Available', class:'status-available'},
+        'busy': {text:'Busy', class:'status-busy'},
+        'unavailable': {text:'Unavailable', class:'status-unavailable'},
+        'on-leave': {text:'On Leave', class:'status-on-leave'}
+    };
+    const conf = statusMap[status] || statusMap['available'];
+    document.getElementById('statusText').textContent = conf.text;
+    document.getElementById('sidebarStatusText').textContent = conf.text;
+    document.getElementById('availabilityBtn').className = `availability-btn ${conf.class}`;
+    document.getElementById('statusIcon').className = `fas fa-circle ${conf.class}`;
+    document.getElementById('sidebarStatusIcon').className = `fas fa-circle status-indicator ${conf.class}`;
+}
+
+// ===================== AVAILABILITY MANAGEMENT =====================
+window.setStatus = async function(status) {
+    try {
+        const note = document.getElementById('statusNote').value;
+        const res = await fetch(`${API_BASE_URL}/faculty/update_status`, {
+            method: 'POST',
+            headers: {'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json'},
+            body: JSON.stringify({status, statusNote: note})
+        });
+        if (!res.ok) throw new Error('Failed to update status');
+        facultyData.currentStatus = status;
+        facultyData.statusNote = note;
+        renderAvailability();
+        showNotification('Status updated!', 'success');
+    } catch (err) {
+        showNotification('Error updating status: ' + err.message, 'error');
+    }
+};
+
+window.updateStatusNote = async function() {
+    await setStatus(facultyData.currentStatus || facultyData.availability_status || 'available');
+};
+
+window.toggleAvailability = function() {
+    const curr = facultyData.currentStatus || facultyData.availability_status || 'available';
+    setStatus(curr === 'available' ? 'busy' : 'available');
+};
+
+// ===================== SIDEBAR SUBJECTS & CLASSES =====================
+function renderSubjects() {
+    const subjectsList = document.getElementById('subjectsList');
+    subjectsList.innerHTML = '';
+    if (facultyData.subjects && facultyData.subjects.length > 0) {
+        facultyData.subjects.forEach(subject => {
+            const el = document.createElement('div');
+            el.className = `subject-item ${subject.color || ''}`;
+            el.innerHTML = `
+                <div>
+                    <div class="subject-code">${subject.code}</div>
+                    <div class="subject-name">${subject.name}</div>
+                </div>
+                <div class="subject-students">${subject.students || ''} Students</div>
+            `;
+            subjectsList.appendChild(el);
+        });
+    } else {
+        subjectsList.innerHTML = '<p style="color: #718096; text-align: center; padding: 1rem;">No subjects assigned</p>';
+    }
+}
+
+function renderUpcomingClasses() {
+    const classesList = document.getElementById('classesList');
+    classesList.innerHTML = '';
+    const today = new Date();
+    const dayName = today.toLocaleDateString('en-US', {weekday:'long'}).toLowerCase();
+    const currentTime = today.toTimeString().substring(0,5);
+    const upcoming = (timetableData[dayName]||[]).filter(cls=>cls.time >= currentTime).slice(0,5);
+    if (upcoming.length) {
+        upcoming.forEach(cls => {
+            const el = document.createElement('div');
+            el.className = 'class-item';
+            el.innerHTML = `<div class="class-time">${cls.time}</div>
+            <div class="class-details"><div class="class-subject">${cls.subject}</div>
+            <div class="class-room">${cls.room} - ${cls.type}</div></div>`;
+            classesList.appendChild(el);
+        });
+    } else {
+        classesList.innerHTML = '<p style="color: #718096; text-align: center; padding: 1rem;">No upcoming classes</p>';
+    }
+}
+
+// ===================== QUICK STATS =====================
+function renderQuickStats() {
+    const today = currentDate.toLocaleDateString('en-US', {weekday:'long'}).toLowerCase();
+    document.getElementById('todayClasses').textContent = (timetableData[today]||[]).length;
+    document.getElementById('weekClasses').textContent = Object.values(timetableData).reduce((sum, arr)=>sum+arr.length,0);
+    document.getElementById('totalSubjects').textContent = facultyData.subjects ? facultyData.subjects.length : 0;
+    document.getElementById('totalStudents').textContent = (facultyData.subjects||[]).reduce((sum,s)=>sum+(s.students||0),0);
+}
+
+// ===================== CALENDAR VIEWS =====================
+function updateDateDisplay() {
+    const dateString = currentDate.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    document.getElementById('currentDate').textContent = dateString;
+}
+
+window.switchView = function(view) {
+    currentView = view;
+    document.querySelectorAll('.toggle-btn').forEach(btn=>btn.classList.remove('active'));
+    document.querySelector(`[data-view="${view}"]`).classList.add('active');
+    document.querySelectorAll('.view-content').forEach(content=>content.classList.remove('active'));
+    document.getElementById(`${view}View`).classList.add('active');
+    updateCalendar();
+};
+
+window.navigateDate = function(direction) {
+    switch(currentView) {
+        case 'day': currentDate.setDate(currentDate.getDate() + direction); break;
+        case 'week': currentDate.setDate(currentDate.getDate() + 7*direction); break;
+        case 'month': currentDate.setMonth(currentDate.getMonth() + direction); break;
+    }
+    updateDateDisplay();
+    updateCalendar();
+    renderQuickStats();
+};
+
+window.goToToday = function() {
+    currentDate = new Date();
+    updateDateDisplay();
+    updateCalendar();
+    renderQuickStats();
+};
+
+function updateCalendar() {
+    switch (currentView) {
+        case 'day': updateDayView(); break;
+        case 'week': updateWeekView(); break;
+        case 'month': updateMonthView(); break;
+    }
+}
+
+function updateDayView() {
+    const dayName = currentDate.toLocaleDateString('en-US', {weekday:'long'}).toLowerCase();
+    const dayClasses = timetableData[dayName] || [];
+    document.getElementById('dayViewDate').textContent = currentDate.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+    const slotsContainer = document.getElementById('daySlots'); slotsContainer.innerHTML = '';
+    timeSlots.forEach(time => {
+        const classForTime = dayClasses.find(cls => cls.time === time);
+        const timeSlot = document.createElement('div'); timeSlot.className = 'time-slot';
+        const timeLabel = document.createElement('div'); timeLabel.className = 'time-label'; timeLabel.textContent = time;
+        const slotContent = document.createElement('div'); slotContent.className = 'slot-content';
+        if (classForTime) {
+            slotContent.classList.add('has-class');
+            slotContent.innerHTML = `<div class="class-info">
+                <div class="class-subject">${classForTime.subject}</div>
+                <div class="class-details">
+                    <span class="class-room">${classForTime.room}</span>
+                    <span>${classForTime.type}</span>
+                </div>
+            </div>`;
+        }
+        timeSlot.appendChild(timeLabel); timeSlot.appendChild(slotContent); slotsContainer.appendChild(timeSlot);
+    });
+}
+
+function updateWeekView() {
+    const weekTimetable = document.getElementById('weekTimetable'); weekTimetable.innerHTML = '';
+    const corner = document.createElement('div'); corner.className = 'week-corner'; corner.textContent = 'Time'; weekTimetable.appendChild(corner);
+    weekDays.forEach(day => {
+        const dayHeader = document.createElement('div'); dayHeader.className = 'week-day-header'; dayHeader.textContent = day.substring(0,3); weekTimetable.appendChild(dayHeader);
+    });
+    timeSlots.forEach(time => {
+        const timeSlot = document.createElement('div'); timeSlot.className = 'week-time-slot'; timeSlot.textContent = time; weekTimetable.appendChild(timeSlot);
+        weekDays.forEach(day => {
+            const dayName = day.toLowerCase(); const dayClasses = timetableData[dayName] || [];
+            const classForTime = dayClasses.find(cls => cls.time === time);
+            const daySlot = document.createElement('div'); daySlot.className = 'week-day-slot';
+            if (classForTime) {
+                daySlot.classList.add('has-class');
+                daySlot.innerHTML = `<div class="week-class-subject">${classForTime.subject}</div>
+                    <div class="week-class-room">${classForTime.room}</div>`;
+            }
+            weekTimetable.appendChild(daySlot);
+        });
+    });
+}
+
+function updateMonthView() {
+    const monthDaysHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthHeader = document.getElementById('monthHeader'); const monthGrid = document.getElementById('monthGrid');
+    monthHeader.innerHTML = ''; monthGrid.innerHTML = '';
+    monthDaysHeaders.forEach(day => {
+        const dayHeader = document.createElement('div'); dayHeader.className = 'month-day-header'; dayHeader.textContent = day; monthHeader.appendChild(dayHeader);
+    });
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const startDate = new Date(firstDay); startDate.setDate(startDate.getDate() - firstDay.getDay());
+    for (let i = 0; i < 42; i++) {
+        const cellDate = new Date(startDate); cellDate.setDate(startDate.getDate() + i);
+        const dayCell = document.createElement('div'); dayCell.className = 'month-day';
+        if (cellDate.getMonth() !== currentDate.getMonth()) dayCell.classList.add('other-month');
+        if (cellDate.toDateString() === new Date().toDateString()) dayCell.classList.add('today');
+        dayCell.innerHTML = `<div class="month-day-number">${cellDate.getDate()}</div>
+            <div class="month-classes"></div>`;
+        const dayName = cellDate.toLocaleDateString('en-US', {weekday:'long'}).toLowerCase();
+        const dayClasses = timetableData[dayName]||[]; const classesContainer = dayCell.querySelector('.month-classes');
+        dayClasses.slice(0,3).forEach(()=>{const indicator=document.createElement('div');indicator.className='month-class-indicator';classesContainer.appendChild(indicator);});
+        monthGrid.appendChild(dayCell);
+    }
+}
+
+// ===================== NOTIFICATIONS =====================
+function showNotification(message, type = 'info') {
+    const existing = document.querySelectorAll('.notification');
+    existing.forEach(n => n.remove());
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: white;
+        border-left: 4px solid ${getNotificationColor(type)};
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        border-radius: 8px; padding: 1rem; z-index: 10000;
+        display: flex; align-items: center; gap: 1rem; min-width: 300px; animation: slideInRight 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 3500);
+}
+
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'success': return 'check-circle';
+        case 'error': return 'exclamation-circle';
+        case 'warning': return 'exclamation-triangle';
+        default: return 'info-circle';
+    }
+}
+function getNotificationColor(type) {
+    switch(type) {
+        case 'success': return '#38a169';
+        case 'error': return '#e53e3e';
+        case 'warning': return '#ed8936';
+        default: return '#667eea';
+    }
+}
+
+//========== WEBSOCKET MESSAGE HANDLER =====================
+
+if (window.wsClient) {
+    window.wsClient.onMessage((data) => {
+        console.log('📨 Faculty received:', data);
+
+        switch(data.type) {
+            case 'connection_established':
+                console.log('✅ Connected to real-time updates');
+                break;
+
+            case 'new_colleague':
+            case 'new_colleagues':
+                // ✅ In-app notification
+                showNotification(`👥 ${data.message}`, 'success');
+
+                // ✅ NEW: Browser notification
+                showBrowserNotification(
+                    '👥 New Colleague',
+                    data.message,
+                    {
+                        icon: 'https://via.placeholder.com/128?text=👥',
+                        tag: 'new-colleague',
+                        onClick: () => {
+                            window.focus();
+                            initializeDashboard();
+                        }
+                    }
+                );
+
+                // Refresh data
+                initializeDashboard();
+                break;
+
+            case 'profile_updated':
+                // ✅ In-app notification
+                showNotification(`👤 ${data.message}`, 'info');
+
+                // ✅ NEW: Browser notification
+                showBrowserNotification(
+                    '👤 Profile Updated',
+                    data.message,
+                    {
+                        icon: 'https://via.placeholder.com/128?text=👤',
+                        tag: 'profile-update',
+                        onClick: () => {
+                            window.focus();
+                        }
+                    }
+                );
+
+                console.log('🔄 Refreshing profile...');
+                initializeDashboard();
+                break;
+
+            case 'timetable_updated':
+                // ✅ In-app notification
+                showNotification(`📅 ${data.message}`, 'success');
+
+                // ✅ NEW: Browser notification
+                showBrowserNotification(
+                    '📅 Timetable Updated',
+                    data.message,
+                    {
+                        icon: 'https://via.placeholder.com/128?text=📅',
+                        tag: 'timetable-update',
+                        onClick: () => {
+                            window.focus();
+                        }
+                    }
+                );
+
+                console.log('🔄 Refreshing timetable...');
+                initializeDashboard();
+                break;
+
+            default:
+                console.log('Unknown message:', data.type);
+        }
+    });
+}
+
+
+// ✅ UPLOAD FACULTY PHOTO
+async function uploadFacultyPhoto() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/jpeg,image/jpg,image/png,image/gif';
+
+    fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // ✅ CHECK FILE SIZE (max 2MB)
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showNotification('⚠️ Image too large! Please use an image smaller than 2MB.', 'error');
+            return;
+        }
+
+        // ✅ CHECK FILE TYPE
+        if (!file.type.startsWith('image/')) {
+            showNotification('⚠️ Please select an image file (JPG, PNG, GIF)', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showNotification('Uploading photo...', 'info');
+
+        try {
+            // ✅ USE FACULTY ENDPOINT (NOT ADMIN!)
+            const response = await fetch(`${API_BASE_URL}/faculty/upload_photo`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification('✅ Photo uploaded successfully!', 'success');
+
+                // ✅ Update photo immediately
+                facultyData.photo = result.photo;
+                renderProfile();
+
+                // ✅ Refresh dashboard to get updated data
+                await initializeDashboard();
+            } else {
+                const error = await response.json();
+                throw new Error(error.detail || 'Failed to upload photo');
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+            showNotification('❌ Error: ' + err.message, 'error');
+        }
+    };
+
+    fileInput.click();
+}
+
+
+// ===================== LOGOUT BUTTON =====================
+document.body.insertAdjacentHTML('beforeend', `<button onclick="localStorage.removeItem('token');location.href='/faculty'" style="position:fixed;top:12px;right:20px;background:#e53e3e;color:#fff;border:none;padding:0.5rem 1rem;border-radius:8px;z-index:10000;">Logout</button>`);
+</script>
+</body>
+</html>

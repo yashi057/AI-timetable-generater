@@ -1,238 +1,198 @@
-// Timetable Management JavaScript
-// At the top of students.js, teachers.js, courses.js, timetable.js
-// Replace the local data arrays with calls to dataManager
+// ==================== TIMETABLE MANAGEMENT (DYNAMIC VERSION) ====================
+// Your responsibility: Display, View, Export, Delete timetables
+// AI/ML team responsibility: Generate timetable logic
 
-// For students.js - replace studentsData with:
-let studentsData = window.dataManager.getStudents();
-let filteredStudents = [...studentsData];
-
-// Subscribe to data changes
-window.dataManager.subscribe('studentAdded', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-    updateStatistics();
-});
-
-window.dataManager.subscribe('studentUpdated', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-});
-
-window.dataManager.subscribe('studentDeleted', (student) => {
-    studentsData = window.dataManager.getStudents();
-    filteredStudents = [...studentsData];
-    renderStudentsTable();
-    updateStatistics();
-});
-
-// Update the addStudent function to use dataManager:
-function addStudent() {
-    const form = document.getElementById('addStudentForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-
-    const formData = new FormData(form);
-    
-    const newStudent = {
-        firstName: formData.get('firstName'),
-        lastName: formData.get('lastName'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        dateOfBirth: formData.get('dateOfBirth'),
-        gender: formData.get('gender'),
-        department: formData.get('department'),
-        year: parseInt(formData.get('year')),
-        status: 'active',
-        photo: 'https://via.placeholder.com/40',
-        enrollmentDate: formData.get('enrollmentDate'),
-        address: formData.get('address'),
-        emergencyContact: formData.get('emergencyContact'),
-        gpa: 0.0,
-        credits: 0,
-        enrolledCourses: []
-    };
-
-    showNotification('Adding student...', 'info');
-
-    setTimeout(() => {
-        window.dataManager.addStudent(newStudent);
-        closeModal('addStudentModal');
-        showNotification('Student added successfully!', 'success');
-    }, 1500);
-}
-// Sample timetable data
-let timetableData = [
-    {
-        id: 'cs-fall-2024',
-        name: 'Computer Science - Fall 2024',
-        department: 'computer-science',
-        semester: 'fall-2024',
-        status: 'active',
-        classes: 24,
-        teachers: 8,
-        rooms: 6,
-        created: '2024-09-15',
-        schedule: {
-            'Monday': {
-                '09:00-10:00': { subject: 'CS101', teacher: 'Dr. Sarah Johnson', room: 'A101' },
-                '10:00-11:00': { subject: 'CS201', teacher: 'Prof. Michael Chen', room: 'B205' },
-                '11:00-12:00': { subject: 'CS301', teacher: 'Dr. Emily Davis', room: 'C301' },
-                '14:00-15:00': { subject: 'CS401', teacher: 'Dr. John Wilson', room: 'A101' },
-                '15:00-16:00': { subject: 'CS501', teacher: 'Prof. Lisa Brown', room: 'B205' }
-            },
-            'Tuesday': {
-                '09:00-10:00': { subject: 'CS102', teacher: 'Dr. Sarah Johnson', room: 'A101' },
-                '10:00-11:00': { subject: 'CS202', teacher: 'Prof. Michael Chen', room: 'B205' },
-                '11:00-12:00': { subject: 'CS302', teacher: 'Dr. Emily Davis', room: 'C301' },
-                '14:00-15:00': { subject: 'CS402', teacher: 'Dr. John Wilson', room: 'A101' },
-                '15:00-16:00': { subject: 'CS502', teacher: 'Prof. Lisa Brown', room: 'B205' }
-            },
-            'Wednesday': {
-                '09:00-10:00': { subject: 'CS101', teacher: 'Dr. Sarah Johnson', room: 'A101' },
-                '10:00-11:00': { subject: 'CS201', teacher: 'Prof. Michael Chen', room: 'B205' },
-                '11:00-12:00': { subject: 'CS301', teacher: 'Dr. Emily Davis', room: 'C301' },
-                '14:00-15:00': { subject: 'CS401', teacher: 'Dr. John Wilson', room: 'A101' },
-                '15:00-16:00': { subject: 'CS501', teacher: 'Prof. Lisa Brown', room: 'B205' }
-            },
-            'Thursday': {
-                '09:00-10:00': { subject: 'CS102', teacher: 'Dr. Sarah Johnson', room: 'A101' },
-                '10:00-11:00': { subject: 'CS202', teacher: 'Prof. Michael Chen', room: 'B205' },
-                '11:00-12:00': { subject: 'CS302', teacher: 'Dr. Emily Davis', room: 'C301' },
-                '14:00-15:00': { subject: 'CS402', teacher: 'Dr. John Wilson', room: 'A101' },
-                '15:00-16:00': { subject: 'CS502', teacher: 'Prof. Lisa Brown', room: 'B205' }
-            },
-            'Friday': {
-                '09:00-10:00': { subject: 'CS101', teacher: 'Dr. Sarah Johnson', room: 'A101' },
-                '10:00-11:00': { subject: 'CS201', teacher: 'Prof. Michael Chen', room: 'B205' },
-                '11:00-12:00': { subject: 'CS301', teacher: 'Dr. Emily Davis', room: 'C301' },
-                '14:00-15:00': { subject: 'LAB Session', teacher: 'Multiple', room: 'Lab1' }
-            }
-        }
-    },
-    {
-        id: 'math-fall-2024',
-        name: 'Mathematics - Fall 2024',
-        department: 'mathematics',
-        semester: 'fall-2024',
-        status: 'draft',
-        classes: 18,
-        teachers: 6,
-        rooms: 4,
-        created: '2024-09-12',
-        schedule: {}
-    },
-    {
-        id: 'physics-fall-2024',
-        name: 'Physics - Fall 2024',
-        department: 'physics',
-        semester: 'fall-2024',
-        status: 'archived',
-        classes: 15,
-        teachers: 5,
-        rooms: 3,
-        created: '2024-09-10',
-        schedule: {}
-    }
-];
+// Global variables
+let timetableData = [];
+let filteredTimetables = [];
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     initializeTimetablePage();
     setupEventListeners();
+    loadTimetables(); // ← Fetch from backend
 });
 
 function initializeTimetablePage() {
-    // Add sidebar toggle functionality
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.sidebar');
-    
+
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('active');
         });
     }
-
-    // Initialize filters
-    populateFilters();
-    filterTimetables();
 }
 
 function setupEventListeners() {
-    // Close modals when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('modal')) {
-            closeModal(e.target.id);
+            const modalId = e.target.id;
+            if (modalId) closeModal(modalId);
         }
-    });
-
-    // Form validation
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-        });
     });
 }
 
-// Filter functions
+// ==================== LOAD TIMETABLES FROM BACKEND ====================
+
+async function loadTimetables() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Please login first', 'error');
+        window.location.href = '/admin';
+        return;
+    }
+
+    try {
+        showLoading();
+
+        const response = await fetch('http://127.0.0.1:8000/admin/timetables', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load timetables');
+        }
+
+        timetableData = await response.json();
+        filteredTimetables = [...timetableData];
+
+        console.log('✅ Loaded timetables:', timetableData);
+
+        hideLoading();
+        renderTimetables();
+
+    } catch (error) {
+        console.error('Error loading timetables:', error);
+        hideLoading();
+        showEmptyState();
+        showNotification('Failed to load timetables', 'error');
+    }
+}
+
+function renderTimetables() {
+    const grid = document.getElementById('timetablesGrid');
+
+    if (filteredTimetables.length === 0) {
+        showEmptyState();
+        return;
+    }
+
+    hideEmptyState();
+
+    // Clear existing cards (except loading/empty states)
+    const existingCards = grid.querySelectorAll('.timetable-card');
+    existingCards.forEach(card => card.remove());
+
+    // Render each timetable
+    filteredTimetables.forEach(timetable => {
+        const card = createTimetableCard(timetable);
+        grid.appendChild(card);
+    });
+}
+// Read about this function--------------
+function createTimetableCard(timetable) {
+    const card = document.createElement('div');
+    card.className = 'timetable-card';
+    card.dataset.department = timetable.department;
+    card.dataset.semester = timetable.semester;
+    card.dataset.status = timetable.status;
+    card.dataset.timetableId = timetable.id;
+
+    card.innerHTML = `
+        <div class="card-header">
+            <h3>${timetable.name}</h3>
+            <div class="status-badge ${timetable.status}">${timetable.status.charAt(0).toUpperCase() + timetable.status.slice(1)}</div>
+        </div>
+        <div class="card-content">
+            <div class="timetable-info">
+                <div class="info-item">
+                    <i class="fas fa-users"></i>
+                    <span>${timetable.classes} Classes</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>${timetable.teachers} Teachers</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-door-open"></i>
+                    <span>${timetable.rooms} Rooms</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Created: ${new Date(timetable.created).toLocaleDateString()}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-actions">
+            <button class="btn-icon" onclick="viewTimetable('${timetable.id}')" title="View Timetable">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon" onclick="exportTimetable('${timetable.id}')" title="Export">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="btn-icon danger" onclick="deleteTimetable('${timetable.id}')" title="Delete">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+
+    return card;
+}
+
+// ==================== FILTER FUNCTIONS ====================
+
 function filterTimetables() {
     const departmentFilter = document.getElementById('departmentFilter').value;
     const semesterFilter = document.getElementById('semesterFilter').value;
     const statusFilter = document.getElementById('statusFilter').value;
 
-    const cards = document.querySelectorAll('.timetable-card');
-    
-    cards.forEach(card => {
-        const department = card.dataset.department;
-        const semester = card.dataset.semester;
-        const status = card.dataset.status;
-
-        const showCard = 
-            (!departmentFilter || department === departmentFilter) &&
-            (!semesterFilter || semester === semesterFilter) &&
-            (!statusFilter || status === statusFilter);
-
-        card.style.display = showCard ? 'block' : 'none';
+    filteredTimetables = timetableData.filter(timetable => {
+        return (!departmentFilter || timetable.department === departmentFilter) &&
+               (!semesterFilter || timetable.semester === semesterFilter) &&
+               (!statusFilter || timetable.status === statusFilter);
     });
 
-    // Update visible count
-    const visibleCards = document.querySelectorAll('.timetable-card[style="display: block"], .timetable-card:not([style*="display: none"])');
-    console.log(`Showing ${visibleCards.length} timetables`);
+    renderTimetables();
 }
 
 function clearFilters() {
     document.getElementById('departmentFilter').value = '';
     document.getElementById('semesterFilter').value = '';
     document.getElementById('statusFilter').value = '';
-    filterTimetables();
+    filteredTimetables = [...timetableData];
+    renderTimetables();
     showNotification('Filters cleared', 'info');
 }
 
-function populateFilters() {
-    // This would typically populate from database
-    console.log('Filters populated');
-}
+// ==================== VIEW TIMETABLE ====================
 
-// Timetable actions
-function viewTimetable(timetableId) {
-    const timetable = timetableData.find(t => t.id === timetableId);
-    if (!timetable) {
-        showNotification('Timetable not found', 'error');
-        return;
+async function viewTimetable(timetableId) {
+    const token = localStorage.getItem('token');
+
+    try {
+        showNotification('Loading timetable...', 'info');
+
+        const response = await fetch(`http://127.0.0.1:8000/admin/timetable/${timetableId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load timetable details');
+        }
+
+        const timetable = await response.json();
+
+        document.getElementById('timetableViewTitle').textContent = `${timetable.department} - ${timetable.semester}`;
+        generateTimetableView(timetable);
+        openModal('timetableViewModal');
+
+    } catch (error) {
+        console.error('Error loading timetable:', error);
+        showNotification('Failed to load timetable', 'error');
     }
-
-    // Update modal title
-    document.getElementById('timetableViewTitle').textContent = timetable.name;
-
-    // Generate timetable HTML
-    generateTimetableView(timetable);
-
-    // Open modal
-    openModal('timetableViewModal');
 }
 
 function generateTimetableView(timetable) {
@@ -240,31 +200,21 @@ function generateTimetableView(timetable) {
     tbody.innerHTML = '';
 
     const timeSlots = [
-        '09:00-10:00',
-        '10:00-11:00',
-        '11:00-12:00',
-        '12:00-13:00',
-        '13:00-14:00',
-        '14:00-15:00',
-        '15:00-16:00',
-        '16:00-17:00'
+        '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
+        '12:00-13:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'
     ];
-
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
     timeSlots.forEach(timeSlot => {
         const row = document.createElement('tr');
-        
-        // Time column
         const timeCell = document.createElement('td');
         timeCell.innerHTML = `<div class="time-slot">${timeSlot}</div>`;
         row.appendChild(timeCell);
 
-        // Day columns
         days.forEach(day => {
             const dayCell = document.createElement('td');
             const schedule = timetable.schedule[day];
-            
+
             if (schedule && schedule[timeSlot]) {
                 const classInfo = schedule[timeSlot];
                 dayCell.innerHTML = `
@@ -279,7 +229,7 @@ function generateTimetableView(timetable) {
             } else {
                 dayCell.innerHTML = '<div class="subject-slot empty">Free</div>';
             }
-            
+
             row.appendChild(dayCell);
         });
 
@@ -287,112 +237,334 @@ function generateTimetableView(timetable) {
     });
 }
 
-function editTimetable(timetableId) {
-    showNotification(`Opening editor for timetable: ${timetableId}`, 'info');
-    // This would open the timetable editor
-}
-
-function duplicateTimetable(timetableId) {
-    const timetable = timetableData.find(t => t.id === timetableId);
-    if (!timetable) {
-        showNotification('Timetable not found', 'error');
-        return;
-    }
-
-    showNotification(`Duplicating timetable: ${timetable.name}`, 'info');
-    
-    // Simulate duplication
-    setTimeout(() => {
-        showNotification('Timetable duplicated successfully!', 'success');
-        // Refresh the page or add new card
-    }, 2000);
-}
+// ==================== EXPORT TIMETABLE ====================
 
 function exportTimetable(timetableId) {
-    const timetable = timetableData.find(t => t.id === timetableId);
-    if (!timetable) {
-        showNotification('Timetable not found', 'error');
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;">
+            <div style="background:white;padding:30px;border-radius:10px;width:300px;">
+                <h3 style="margin-top:0;color:#4F46E5;">Export Timetable</h3>
+                <p style="color:#666;margin-bottom:20px;font-size:14px;">Choose format:</p>
+                <button onclick="doExport('csv', '${timetableId}')" style="width:100%;padding:12px;margin:8px 0;background:#10B981;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;">📄 CSV File</button>
+                <button onclick="doExport('excel', '${timetableId}')" style="width:100%;padding:12px;margin:8px 0;background:#059669;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;">📊 Excel File</button>
+                <button onclick="doExport('pdf', '${timetableId}')" style="width:100%;padding:12px;margin:8px 0;background:#DC2626;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;">📕 PDF File</button>
+                <button onclick="closeExportModal()" style="width:100%;padding:12px;margin:15px 0 0 0;background:#6B7280;color:white;border:none;border-radius:5px;cursor:pointer;font-size:14px;">Cancel</button>
+            </div>
+        </div>
+    `;
+    modal.id = 'exportModal';
+    document.body.appendChild(modal);
+}
+
+function closeExportModal() {
+    const modal = document.getElementById('exportModal');
+    if (modal) modal.remove();
+}
+
+function doExport(format, timetableId) {
+    closeExportModal();
+    showNotification(`Preparing ${format.toUpperCase()} export...`, 'info');
+
+    const token = localStorage.getItem('token');
+
+    fetch(`http://127.0.0.1:8000/admin/export_timetable/${format}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Export failed');
+        return res.blob();
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `timetable-${timetableId}-${new Date().toISOString().split('T')[0]}.${format === 'excel' ? 'xlsx' : format}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        showNotification(`✅ Timetable exported as ${format.toUpperCase()}!`, 'success');
+    })
+    .catch(err => {
+        console.error('Export error:', err);
+        showNotification('❌ Export failed. Please try again.', 'error');
+    });
+}
+
+// ==================== DELETE TIMETABLE ====================
+
+async function deleteTimetable(timetableId) {
+    if (!confirm('⚠️ Are you sure you want to delete this timetable?\n\nThis action cannot be undone.')) {
         return;
     }
 
-    showNotification('Preparing export...', 'info');
+    const token = localStorage.getItem('token');
 
-    // Simulate export
-    setTimeout(() => {
-        const dataStr = JSON.stringify(timetable, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `${timetableId}-export.json`;
-        link.click();
-        
-        showNotification('Timetable exported successfully!', 'success');
-    }, 1500);
-}
+    try {
+        showNotification('Deleting timetable...', 'info');
 
-function deleteTimetable(timetableId) {
-    if (!confirm('Are you sure you want to delete this timetable? This action cannot be undone.')) {
-        return;
+        const response = await fetch(`http://127.0.0.1:8000/admin/timetable/${timetableId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete timetable');
+        }
+
+        // Remove from local data
+        timetableData = timetableData.filter(t => t.id !== timetableId);
+        filteredTimetables = filteredTimetables.filter(t => t.id !== timetableId);
+
+        // Re-render
+        renderTimetables();
+
+        showNotification('✅ Timetable deleted successfully!', 'success');
+
+    } catch (error) {
+        console.error('Delete error:', error);
+        showNotification('❌ Failed to delete timetable', 'error');
     }
-
-    showNotification('Deleting timetable...', 'info');
-
-    // Simulate deletion
-    setTimeout(() => {
-        // Remove from data array
-        const index = timetableData.findIndex(t => t.id === timetableId);
-        if (index !== -1) {
-            timetableData.splice(index, 1);
-        }
-
-        // Remove card from DOM
-        const card = document.querySelector(`[data-timetable-id="${timetableId}"]`);
-        if (card) {
-            card.remove();
-        }
-
-        showNotification('Timetable deleted successfully!', 'success');
-    }, 1500);
 }
 
-function printTimetable() {
+
+// ==================== PRINT PREVIEW ====================
+
+function printPreview() {
     const printContent = document.querySelector('.timetable-view').innerHTML;
-    const printWindow = window.open('', '', 'height=600,width=800');
-    
-    printWindow.document.write(`
+    const title = document.getElementById('timetableViewTitle').textContent;
+    const previewWindow = window.open('', 'Print Preview', 'height=700,width=900');
+
+    previewWindow.document.write(`
+        <!DOCTYPE html>
         <html>
         <head>
-            <title>Timetable</title>
+            <title>Print Preview - ${title}</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #667eea; color: white; }
-                .time-slot { background: #667eea; color: white; padding: 5px; border-radius: 4px; text-align: center; }
-                .subject-slot { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 5px; margin: 2px; }
-                .subject-name { font-weight: bold; color: #2d3748; }
-                .subject-teacher { color: #718096; font-size: 0.8em; }
-                .subject-room { color: #667eea; font-size: 0.8em; }
-                @media print { body { margin: 0; } }
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background: #f5f5f5;
+                }
+                .preview-container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    background: white;
+                    padding: 40px;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                }
+                .preview-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 3px solid #4F46E5;
+                }
+                h1 {
+                    color: #4F46E5;
+                    margin: 0;
+                    font-size: 24px;
+                }
+                .preview-info {
+                    color: #666;
+                    font-size: 14px;
+                    text-align: right;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: center;
+                }
+                th {
+                    background-color: #4F46E5;
+                    color: white;
+                    font-weight: bold;
+                }
+                .time-slot {
+                    background: #667eea;
+                    color: white;
+                    padding: 8px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }
+                .subject-slot {
+                    background: #f7fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 4px;
+                    padding: 10px;
+                    min-height: 60px;
+                }
+                .subject-name {
+                    font-weight: bold;
+                    color: #2d3748;
+                    margin-bottom: 4px;
+                    font-size: 14px;
+                }
+                .subject-teacher {
+                    color: #718096;
+                    font-size: 12px;
+                    margin-bottom: 2px;
+                }
+                .subject-room {
+                    color: #667eea;
+                    font-size: 12px;
+                    font-weight: 500;
+                }
+                .break {
+                    background: #fff3cd;
+                    color: #856404;
+                    font-weight: bold;
+                }
+                .empty {
+                    background: #f8f9fa;
+                    color: #adb5bd;
+                }
+                .action-buttons {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    display: flex;
+                    gap: 10px;
+                    z-index: 1000;
+                }
+                .action-buttons button {
+                    padding: 12px 24px;
+                    border: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                }
+                .btn-print {
+                    background: #4F46E5;
+                    color: white;
+                }
+                .btn-print:hover {
+                    background: #4338CA;
+                }
+                .btn-close {
+                    background: #6B7280;
+                    color: white;
+                }
+                .btn-close:hover {
+                    background: #4B5563;
+                }
+                .footer {
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #ddd;
+                    color: #666;
+                    font-size: 12px;
+                    text-align: center;
+                }
+                @media print {
+                    body {
+                        background: white;
+                        padding: 0;
+                    }
+                    .preview-container {
+                        box-shadow: none;
+                        padding: 20px;
+                    }
+                    .action-buttons {
+                        display: none !important;
+                    }
+                    @page {
+                        margin: 1cm;
+                    }
+                }
             </style>
         </head>
         <body>
-            <h1>${document.getElementById('timetableViewTitle').textContent}</h1>
+            <div class="action-buttons">
+                <button class="btn-print" onclick="window.print()">
+                    🖨️ Print Now
+                </button>
+                <button class="btn-close" onclick="window.close()">
+                    ✕ Close
+                </button>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-header">
+                    <h1>${title}</h1>
+                    <div class="preview-info">
+                        <strong>Generated:</strong> ${new Date().toLocaleString()}<br>
+                        <strong>By:</strong> ${localStorage.getItem('username') || 'Admin'}
+                    </div>
+                </div>
+                ${printContent}
+                <div class="footer">
+                    TimeWeaver - Intelligent Timetable Management System
+                </div>
+            </div>
+        </body>
+        </html>
+    `);
+
+    previewWindow.document.close();
+}
+
+// ==================== DIRECT PRINT ====================
+
+function printTimetable() {
+    const printContent = document.querySelector('.timetable-view').innerHTML;
+    const title = document.getElementById('timetableViewTitle').textContent;
+    const printWindow = window.open('', '', 'height=600,width=800');
+
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>${title}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #4F46E5; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                th { background-color: #4F46E5; color: white; font-weight: bold; }
+                .time-slot { background: #667eea; color: white; padding: 8px; border-radius: 4px; font-weight: bold; }
+                .subject-slot { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px; }
+                .subject-name { font-weight: bold; color: #2d3748; margin-bottom: 4px; }
+                .subject-teacher { color: #718096; font-size: 0.9em; }
+                .subject-room { color: #667eea; font-size: 0.9em; }
+                .break { background: #fff3cd; color: #856404; }
+                .empty { background: #f8f9fa; color: #6c757d; }
+                @media print {
+                    body { margin: 0; }
+                    @page { margin: 1cm; }
+                }
+            </style>
+        </head>
+        <body>
+            <h1>${title}</h1>
+            <p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>
             ${printContent}
         </body>
         </html>
     `);
-    
+
     printWindow.document.close();
-    printWindow.print();
+    setTimeout(() => printWindow.print(), 250);
 }
 
-// Create new timetable
+// ==================== BUTTONS NOT YOUR RESPONSIBILITY ====================
+// These will be implemented by AI/ML team
+
 function openCreateTimetableModal() {
-    openModal('createTimetableModal');
+      openModal('createTimetableModal');
+
+    //showNotification('⏳ Timetable generation will be implemented by AI/ML team', 'info');
+    // openModal('createTimetableModal'); // Uncomment when AI/ML team provides logic
 }
 
+// new function added by me-------------
 function createTimetable() {
     const form = document.getElementById('createTimetableForm');
     if (!form.checkValidity()) {
@@ -429,10 +601,7 @@ function createTimetable() {
     }, 2000);
 }
 
-function generateTimetableId() {
-    return 'tt-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-}
-
+// new function added from UI timetable.js----------
 function addTimetableCard(timetable) {
     const grid = document.querySelector('.timetables-grid');
     const card = document.createElement('div');
@@ -488,24 +657,38 @@ function addTimetableCard(timetable) {
     grid.prepend(card);
 }
 
-// Auto generate timetable
 function generateAutoTimetable() {
-    showNotification('Starting automatic timetable generation...', 'info');
-    
-    // Simulate auto generation process
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 10;
-        showNotification(`Generating timetable... ${progress}%`, 'info');
-        
-        if (progress >= 100) {
-            clearInterval(interval);
-            showNotification('Auto-generation completed! Please review the generated timetable.', 'success');
-        }
-    }, 500);
+    showNotification('⏳ Auto-generation will be implemented by AI/ML team', 'info');
 }
 
-// Modal functions
+function editTimetable(timetableId) {
+    showNotification('⏳ Edit feature will be implemented by AI/ML team', 'info');
+}
+
+function duplicateTimetable(timetableId) {
+    showNotification('⏳ Duplicate feature will be implemented by AI/ML team', 'info');
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+
+function showLoading() {
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('emptyState').style.display = 'none';
+}
+
+function hideLoading() {
+    document.getElementById('loadingState').style.display = 'none';
+}
+
+function showEmptyState() {
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('loadingState').style.display = 'none';
+}
+
+function hideEmptyState() {
+    document.getElementById('emptyState').style.display = 'none';
+}
+
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -519,22 +702,15 @@ function closeModal(modalId) {
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = 'auto';
-        
-        // Reset form if it exists
         const form = modal.querySelector('form');
-        if (form) {
-            form.reset();
-        }
+        if (form) form.reset();
     }
 }
 
-// Notification system (reuse from dashboard.js)
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(notification => notification.remove());
 
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -547,7 +723,6 @@ function showNotification(message, type = 'info') {
         </button>
     `;
 
-    // Add styles
     notification.style.cssText = `
         position: fixed;
         top: 20px;
@@ -565,10 +740,8 @@ function showNotification(message, type = 'info') {
         animation: slideInRight 0.3s ease;
     `;
 
-    // Add to DOM
     document.body.appendChild(notification);
 
-    // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentElement) {
             notification.style.animation = 'slideOutRight 0.3s ease';
@@ -595,20 +768,6 @@ function getNotificationColor(type) {
     }
 }
 
-// Export functions for global use
-window.timetableAPI = {
-    filterTimetables,
-    clearFilters,
-    viewTimetable,
-    editTimetable,
-    duplicateTimetable,
-    exportTimetable,
-    deleteTimetable,
-    createTimetable,
-    generateAutoTimetable,
-    openCreateTimetableModal,
-    printTimetable,
-    showNotification
-};
-
-console.log('Timetable management system loaded successfully!');
+console.log('✅ Timetable display system loaded!');
+console.log('📋 Your features: View, Export, Delete');
+console.log('⏳ AI/ML team features: Generate, Edit, Duplicate');

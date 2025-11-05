@@ -60,7 +60,7 @@
             <section class="navigation-section">
                 <h3>Choose Your Portal</h3>
                 <div class="portal-buttons">
-                    <button class="portal-btn admin-btn" onclick="navigateToPortal('admin')">
+                    <button class="portal-btn admin-btn" onclick="navigateToPortal(event, 'admin')">
                         <div class="btn-icon">
                             <i class="fas fa-user-shield"></i>
                         </div>
@@ -73,7 +73,7 @@
                         </div>
                     </button>
 
-                    <button class="portal-btn student-btn" onclick="navigateToPortal('student')">
+                    <button class="portal-btn student-btn" onclick="navigateToPortal(event, 'student')">
                         <div class="btn-icon">
                             <i class="fas fa-user-graduate"></i>
                         </div>
@@ -86,7 +86,7 @@
                         </div>
                     </button>
 
-                    <button class="portal-btn faculty-btn" onclick="navigateToPortal('faculty')">
+                    <button class="portal-btn faculty-btn" onclick="navigateToPortal(event, 'faculty')">
                         <div class="btn-icon">
                             <i class="fas fa-chalkboard-teacher"></i>
                         </div>
@@ -182,5 +182,6 @@
     </div>
 
     <script src="home.js"></script>
+
 </body>
 </html>

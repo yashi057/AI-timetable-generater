@@ -1,0 +1,47 @@
+# Admin Guide - Teacher Management
+
+## How to Add Teachers
+
+### Option 1: Bulk Import (Recommended for multiple teachers)
+
+1. **Prepare your CSV file:**
+   - Download template: [teacher_template.csv]
+   - Fill in teacher information
+   - **Leave Photo column EMPTY** (photos will be auto-generated)
+
+2. **Import:**
+   - Click "Import Teachers" button
+   - Select your CSV file
+   - Wait for success message
+   - ✅ Done! Teachers appear with auto-generated avatars
+
+3. **Add Photos (Optional):**
+   - Hover over teacher card
+   - Click camera icon 📷
+   - Select photo from computer
+   - ✅ Photo uploaded!
+
+### Option 2: Manual Entry (For single teacher)
+
+1. Click "Add Teacher" button
+2. Fill the form with teacher details
+3. Click "Add Teacher"
+4. Hover over new card → Click 📷 → Upload photo
+
+## Photo Guidelines
+
+- **File Format:** JPG, PNG, GIF
+- **Size:** Under 2MB
+- **Dimensions:** Square photos work best (100x100px or larger)
+- **If no photo:** System auto-generates avatar with initials
+
+## Troubleshooting
+
+**Q: Teacher shows "undefined"**
+A: Make sure CSV has "First Name" and "Last Name" columns filled
+
+**Q: Photo not showing**
+A: Leave Photo column empty in CSV, upload manually after import
+
+**Q: Can't delete teacher**
+A: You must be logged in as admin

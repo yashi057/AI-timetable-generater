@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Management - Time Weaver</title>
+    <style>
+        /* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo i {
+    font-size: 1.5rem;
+    color: #ffd700;
+}
+
+.logo h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: none;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover, .nav-item.active .nav-link {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-left-color: #ffd700;
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+    transition: margin-left 0.3s ease;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.header-left p {
+    color: #718096;
+    font-size: 1rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.date-time {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Statistics Section */
+.stats-section {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-info h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.stat-trend {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.stat-trend.positive {
+    color: #38a169;
+    background-color: rgba(56, 161, 105, 0.1);
+}
+
+.stat-trend.negative {
+    color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.stat-trend.neutral {
+    color: #718096;
+    background-color: rgba(113, 128, 150, 0.1);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Section Styles */
+section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Quick Actions */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn.secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.action-btn.secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Recent Timetables */
+.timetable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timetable-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.timetable-item:hover {
+    background: #edf2f7;
+}
+
+.timetable-info {
+    flex: 1;
+}
+
+.timetable-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.timetable-info p {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+.timetable-status {
+    margin: 0 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.timetable-status.completed {
+    background: rgba(56, 161, 105, 0.1);
+    color: #38a169;
+}
+
+.timetable-status.in-progress {
+    background: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+}
+
+.timetable-status.pending {
+    background: rgba(113, 128, 150, 0.1);
+    color: #718096;
+}
+
+.timetable-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #e2e8f0;
+    color: #4a5568;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-small:hover {
+    background: #cbd5e0;
+    color: #2d3748;
+}
+
+/* Calendar Preview */
+.calendar-grid {
+    background: #f7fafc;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.day-header {
+    padding: 0.75rem;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: #e2e8f0;
+}
+
+.calendar-day {
+    background: white;
+    padding: 0.75rem;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.day-number {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.calendar-event {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Activity Feed */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content p {
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.activity-content span {
+    color: #667eea;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.activity-content time {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f7fafc;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn.secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.btn.secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .sidebar-toggle {
+        display: block;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-right {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-header,
+    .calendar-body {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .day-header:nth-child(4),
+    .day-header:nth-child(5),
+    .calendar-day:nth-child(4),
+    .calendar-day:nth-child(5) {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .timetable-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .timetable-actions {
+        align-self: stretch;
+        justify-content: flex-end;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Dashboard Container */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 260px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.logo h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.sidebar-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: none;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover, .nav-item.active .nav-link {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-left-color: white;
+}
+
+.nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+    transition: margin-left 0.3s ease;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.header-left p {
+    color: #718096;
+    font-size: 1rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.date-time {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Statistics Section */
+.stats-section {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-info h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.stat-trend {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+}
+
+.stat-trend.positive {
+    color: #38a169;
+    background-color: rgba(56, 161, 105, 0.1);
+}
+
+.stat-trend.negative {
+    color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.stat-trend.neutral {
+    color: #718096;
+    background-color: rgba(113, 128, 150, 0.1);
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Section Styles */
+section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* Quick Actions */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn.secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.action-btn.secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Recent Timetables */
+.timetable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timetable-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.timetable-item:hover {
+    background: #edf2f7;
+}
+
+.timetable-info {
+    flex: 1;
+}
+
+.timetable-info h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.timetable-info p {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+.timetable-status {
+    margin: 0 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.timetable-status.completed {
+    background: rgba(56, 161, 105, 0.1);
+    color: #38a169;
+}
+
+.timetable-status.in-progress {
+    background: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+}
+
+.timetable-status.pending {
+    background: rgba(113, 128, 150, 0.1);
+    color: #718096;
+}
+
+.timetable-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #e2e8f0;
+    color: #4a5568;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-small:hover {
+    background: #cbd5e0;
+    color: #2d3748;
+}
+
+/* Calendar Preview (FullCalendar) */
+.calendar-preview {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.fc {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fc .fc-toolbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.fc .fc-toolbar-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+}
+
+.fc .fc-button {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: none !important;
+    color: white !important;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+}
+
+.fc .fc-button:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.fc .fc-button.fc-button-active {
+    background: white !important; /* Theme accent color */
+    color: #2d3748 !important; /* Dark text for contrast */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fc .fc-button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.5) !important; /* Subtle focus ring */
+}
+
+.fc .fc-daygrid-day {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.fc .fc-daygrid-day:hover {
+    background: #edf2f7;
+}
+
+.fc .fc-event {
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    color: white;
+}
+
+.fc-event-title {
+    font-weight: 500;
+}
+
+.fc .fc-daygrid-day-top {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.fc .fc-col-header-cell {
+    background: #f7fafc;
+    color: #2d3748;
+    font-weight: 600;
+    padding: 0.75rem;
+}
+
+.fc .fc-timegrid-slot {
+    border: 1px solid #e2e8f0;
+}
+
+.fc .fc-timegrid-axis {
+    color: #2d3748;
+}
+
+/* Activity Feed */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content p {
+    margin-bottom: 0.25rem;
+    color: #2d3748;
+}
+
+.activity-content span {
+    color: #667eea;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.activity-content time {
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f7fafc;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn.secondary {
+    background: #f7fafc;
+    color: #4a5568;
+    border: 2px solid #e2e8f0;
+}
+
+.btn.secondary:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .sidebar-toggle {
+        display: block;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .header-right {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1rem;
+    }
+
+    .fc .fc-button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .timetable-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .timetable-actions {
+        align-self: stretch;
+        justify-content: flex-end;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+
+    .fc .fc-view-harness {
+        font-size: 0.8rem;
+    }
+
+    .fc .fc-event {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+    </style>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>Time Weaver</h2>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="timetable.html" class="nav-link">
+                        <i class="fas fa-table"></i>
+                        <span>Timetables</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="students.html" class="nav-link">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="teachers.html" class="nav-link">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="courses.html" class="nav-link">
+                        <i class="fas fa-book"></i>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="classrooms.html" class="nav-link">
+                        <i class="fas fa-door-open"></i>
+                        <span>Classrooms</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="page-header">
+                <div class="header-left">
+                    <h1><i class="fas fa-door-open"></i> Classroom Management</h1>
+                    <p>Manage classroom inventory and availability</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn primary" onclick="openAddClassroomModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Classroom
+                    </button>
+                    <button class="btn secondary" onclick="importClassrooms()">
+                        <i class="fas fa-upload"></i>
+                        Import Classrooms
+                    </button>
+                    <button class="btn secondary" onclick="exportClassrooms()">
+                        <i class="fas fa-download"></i>
+                        Export Data
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalClassrooms">0</h3>
+                            <p>Total Classrooms</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+8.2%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="availableClassrooms">0</h3>
+                            <p>Available</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5.1%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="bookedClassrooms">0</h3>
+                            <p>Booked</p>
+                        </div>
+                        <div class="stat-trend neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>1%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalCapacity">0</h3>
+                            <p>Total Capacity</p>
+                        </div>
+                        <div class="stat-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+1</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search and Filters -->
+            <section class="search-section">
+                <div class="search-controls">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="classroomSearch" placeholder="Search by room number or name..." onkeyup="searchClassrooms()">
+                    </div>
+                    <div class="filters">
+                        <select id="departmentFilter" onchange="filterClassrooms()">
+                            <option value="">All Departments</option>
+                            <option value="computer-science">Computer Science</option>
+                            <option value="mathematics">Mathematics</option>
+                            <option value="physics">Physics</option>
+                            <option value="chemistry">Chemistry</option>
+                        </select>
+                        <select id="typeFilter" onchange="filterClassrooms()">
+                            <option value="">All Types</option>
+                            <option value="Lecture Hall">Lecture Hall</option>
+                            <option value="Laboratory">Laboratory</option>
+                            <option value="Computer Lab">Computer Lab</option>
+                            <option value="Seminar Room">Seminar Room</option>
+                        </select>
+                        <select id="statusFilter" onchange="filterClassrooms()">
+                            <option value="">All Status</option>
+                            <option value="active">Available</option>
+                            <option value="booked">Booked</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Classrooms Table -->
+            <section class="students-table-section">
+                <div class="table-container">
+                    <table class="students-table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                                </th>
+                                <th>Room No</th>
+                                <th>Name</th>
+                                <th>Building</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Department</th>
+                                <th>Equipment</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="classroomsTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo">
+                        Showing 0-0 of 0 classrooms
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn secondary" id="prevBtn" onclick="changePage(-1)" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                            Previous
+                        </button>
+                        <div class="page-numbers" id="pageNumbers">
+                            <button class="page-btn active">1</button>
+                        </div>
+                        <button class="btn secondary" id="nextBtn" onclick="changePage(1)">
+                            Next
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Classroom Modal -->
+            <div class="modal large" id="addClassroomModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Add New Classroom</h3>
+                        <button class="modal-close" onclick="closeModal('addClassroomModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addClassroomForm">
+                            <div class="form-section">
+                                <h4>Classroom Information</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="roomNumber">Room Number *</label>
+                                        <input type="text" id="roomNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="roomName">Room Name *</label>
+                                        <input type="text" id="roomName" required>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="building">Building *</label>
+                                        <input type="text" id="building" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="roomType">Type *</label>
+                                        <select id="roomType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="Lecture Hall">Lecture Hall</option>
+                                            <option value="Laboratory">Laboratory</option>
+                                            <option value="Computer Lab">Computer Lab</option>
+                                            <option value="Seminar Room">Seminar Room</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="capacity">Capacity *</label>
+                                        <input type="number" id="capacity" required min="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="department">Department</label>
+                                        <select id="department">
+                                            <option value="">General Use</option>
+                                            <option value="Computer Science">Computer Science</option>
+                                            <option value="Mathematics">Mathematics</option>
+                                            <option value="Physics">Physics</option>
+                                            <option value="Chemistry">Chemistry</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="equipment">Equipment (separate with commas)</label>
+                                    <input type="text" id="equipment" placeholder="Projector, Whiteboard, AC">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('addClassroomModal')">Cancel</button>
+                        <button class="btn primary" onclick="addClassroom()">Add Classroom</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classroom Details Modal -->
+            <div class="modal large" id="classroomDetailsModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="classroomDetailsTitle">Classroom Details</h3>
+                        <button class="modal-close" onclick="closeModal('classroomDetailsModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="classroomDetailsContent">
+                            <!-- Classroom details will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn secondary" onclick="closeModal('classroomDetailsModal')">Close</button>
+                        <button class="btn primary" onclick="editCurrentClassroom()">Edit Classroom</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+<script src="navigation.js"></script>
+<script src="api-service.js"></script>
+    <script src="dashboard.js"></script>
+
+<script>
+
+
+// Classroom Management JavaScript
+let classroomsData = [];
+let filteredClassrooms = [];
+let currentPage = 1;
+const classroomsPerPage = 10;
+
+// Load classrooms from database
+async function loadClassroomsFromDatabase() {
+    const authToken = localStorage.getItem('token');
+    if (!authToken) {
+        showNotification('Please log in first', 'error');
+        window.location.href = '/admin';
+        return;
+    }
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/admin/classrooms', {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch classrooms');
+
+        classroomsData = await response.json();
+        filteredClassrooms = [...classroomsData];
+
+        renderClassroomsTable();
+        updateStatistics();
+        updatePagination();
+
+        showNotification('Classrooms loaded successfully', 'success');
+    } catch (err) {
+        console.error('Error loading classrooms:', err);
+        showNotification('Error loading classrooms: ' + err.message, 'error');
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', async function() {
+    initializeClassroomsPage();
+    await loadClassroomsFromDatabase();
+});
+
+function initializeClassroomsPage() {
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+    }
+
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('modal')) {
+            closeModal(e.target.id);
+        }
+    });
+
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    });
+}
+
+// Search and filter functions
+function searchClassrooms() {
+    const searchTerm = document.getElementById('classroomSearch').value.toLowerCase();
+
+    filteredClassrooms = classroomsData.filter(classroom => {
+        return (classroom.room_number && classroom.room_number.toLowerCase().includes(searchTerm)) ||
+               (classroom.name && classroom.name.toLowerCase().includes(searchTerm)) ||
+               (classroom.building && classroom.building.toLowerCase().includes(searchTerm));
+    });
+
+    applyFilters();
+    renderClassroomsTable();
+    updatePagination();
+}
+
+function filterClassrooms() {
+    filteredClassrooms = [...classroomsData];
+    applyFilters();
+    renderClassroomsTable();
+    updatePagination();
+}
+
+function applyFilters() {
+    const departmentFilter = document.getElementById('departmentFilter').value;
+    const typeFilter = document.getElementById('typeFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+
+    filteredClassrooms = filteredClassrooms.filter(classroom => {
+        return (!departmentFilter || classroom.department === departmentFilter) &&
+               (!typeFilter || classroom.type === typeFilter) &&
+               (!statusFilter || classroom.status === statusFilter);
+    });
+}
+
+// Table rendering
+function renderClassroomsTable() {
+    const tbody = document.getElementById('classroomsTableBody');
+    tbody.innerHTML = '';
+
+    const startIndex = (currentPage - 1) * classroomsPerPage;
+    const endIndex = startIndex + classroomsPerPage;
+    const classroomsToShow = filteredClassrooms.slice(startIndex, endIndex);
+
+    classroomsToShow.forEach(classroom => {
+        const row = document.createElement('tr');
+        row.dataset.classroomId = classroom.room_number || classroom.id;
+
+        const equipment = Array.isArray(classroom.equipment) ?
+            classroom.equipment.join(', ') :
+            (classroom.equipment || 'None');
+
+        row.innerHTML = `
+            <td><input type="checkbox" class="classroom-checkbox" value="${classroom.room_number || classroom.id}"></td>
+            <td><strong>${classroom.room_number || 'N/A'}</strong></td>
+            <td>${classroom.name || 'N/A'}</td>
+            <td>${classroom.building || 'N/A'}</td>
+            <td>${classroom.type || 'N/A'}</td>
+            <td>${classroom.capacity || 'N/A'}</td>
+            <td>${classroom.department || 'General'}</td>
+            <td>${equipment}</td>
+            <td><span class="status-badge ${classroom.status || 'active'}">${(classroom.status || 'active').charAt(0).toUpperCase() + (classroom.status || 'active').slice(1)}</span></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="viewClassroom('${classroom.room_number || classroom.id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-icon" onclick="editClassroom('${classroom.room_number || classroom.id}')" title="Edit Classroom">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteClassroom('${classroom.room_number || classroom.id}')" title="Delete Classroom">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    updateSelectAllCheckbox();
+}
+
+// Pagination
+function updatePagination() {
+    const totalPages = Math.ceil(filteredClassrooms.length / classroomsPerPage);
+    const startIndex = (currentPage - 1) * classroomsPerPage + 1;
+    const endIndex = Math.min(currentPage * classroomsPerPage, filteredClassrooms.length);
+
+    document.getElementById('paginationInfo').textContent =
+        `Showing ${startIndex}-${endIndex} of ${filteredClassrooms.length} classrooms`;
+
+    const pageNumbers = document.getElementById('pageNumbers');
+    pageNumbers.innerHTML = '';
+
+    for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        const button = document.createElement('button');
+        button.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        button.textContent = i;
+        button.onclick = () => { currentPage = i; renderClassroomsTable(); updatePagination(); };
+        pageNumbers.appendChild(button);
+    }
+
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
+}
+
+function changePage(direction) {
+    const totalPages = Math.ceil(filteredClassrooms.length / classroomsPerPage);
+    currentPage = Math.max(1, Math.min(currentPage + direction, totalPages));
+    renderClassroomsTable();
+    updatePagination();
+}
+
+// Select all functionality
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const classroomCheckboxes = document.querySelectorAll('.classroom-checkbox');
+
+    classroomCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+}
+
+function updateSelectAllCheckbox() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const classroomCheckboxes = document.querySelectorAll('.classroom-checkbox');
+    const checkedBoxes = document.querySelectorAll('.classroom-checkbox:checked');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = classroomCheckboxes.length > 0 && checkedBoxes.length === classroomCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < classroomCheckboxes.length;
+    }
+}
+
+// Classroom actions
+function viewClassroom(classroomId) {
+    const classroom = classroomsData.find(c => (c.room_number || c.id) === classroomId);
+    if (!classroom) {
+        showNotification('Classroom not found', 'error');
+        return;
+    }
+
+    document.getElementById('classroomDetailsTitle').textContent = `${classroom.room_number} - ${classroom.name}`;
+
+    const equipment = Array.isArray(classroom.equipment) ?
+        classroom.equipment.join(', ') :
+        (classroom.equipment || 'None');
+
+    document.getElementById('classroomDetailsContent').innerHTML = `
+        <div class="classroom-details">
+            <div class="info-group">
+                <h5>Basic Information</h5>
+                <div class="info-item">
+                    <span class="info-label">Room Number:</span>
+                    <span class="info-value">${classroom.room_number}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value">${classroom.name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Building:</span>
+                    <span class="info-value">${classroom.building}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Type:</span>
+                    <span class="info-value">${classroom.type}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Capacity:</span>
+                    <span class="info-value">${classroom.capacity} students</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Department:</span>
+                    <span class="info-value">${classroom.department || 'General Use'}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Equipment:</span>
+                    <span class="info-value">${equipment}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        <span class="status-badge ${classroom.status}">${(classroom.status || 'active').charAt(0).toUpperCase() + (classroom.status || 'active').slice(1)}</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    openModal('classroomDetailsModal');
+}
+
+function editClassroom(classroomId) {
+    const classroom = classroomsData.find(c => (c.room_number || c.id) === classroomId);
+    if (!classroom) {
+        showNotification('Classroom not found', 'error');
+        return;
+    }
+
+    showNotification(`Editing classroom: ${classroom.room_number}`, 'info');
+}
+
+function editCurrentClassroom() {
+    showNotification('Edit feature coming soon', 'info');
+}
+
+function deleteClassroom(classroomId) {
+    if (!confirm('Are you sure you want to delete this classroom?')) {
+        return;
+    }
+
+    showNotification('Deleting classroom...', 'info');
+
+    setTimeout(() => {
+        const index = classroomsData.findIndex(c => (c.room_number || c.id) === classroomId);
+        if (index !== -1) {
+            classroomsData.splice(index, 1);
+            filteredClassrooms = filteredClassrooms.filter(c => (c.room_number || c.id) !== classroomId);
+        }
+
+        renderClassroomsTable();
+        updatePagination();
+        updateStatistics();
+        showNotification('Classroom deleted successfully!', 'success');
+    }, 1500);
+}
+
+function openAddClassroomModal() {
+    document.getElementById('addClassroomForm').reset();
+    openModal('addClassroomModal');
+}
+
+function addClassroom() {
+    const form = document.getElementById('addClassroomForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const equipmentStr = document.getElementById('equipment').value;
+    const equipment = equipmentStr ? equipmentStr.split(',').map(e => e.trim()) : [];
+
+    const newClassroom = {
+        room_number: document.getElementById('roomNumber').value,
+        name: document.getElementById('roomName').value,
+        building: document.getElementById('building').value,
+        type: document.getElementById('roomType').value,
+        capacity: parseInt(document.getElementById('capacity').value),
+        department: document.getElementById('department').value || 'General Use',
+        equipment: equipment,
+        status: 'active'
+    };
+
+    showNotification('Adding classroom...', 'info');
+
+    setTimeout(() => {
+        classroomsData.push(newClassroom);
+        filteredClassrooms = [...classroomsData];
+        closeModal('addClassroomModal');
+        renderClassroomsTable();
+        updatePagination();
+        updateStatistics();
+        showNotification('Classroom added successfully!', 'success');
+    }, 1500);
+}
+
+// Import/Export
+async function importClassrooms() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,.xlsx,.xls';
+
+    fileInput.onchange = async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const authToken = localStorage.getItem('token');
+        if (!authToken) {
+            alert('Please log in first');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        showNotification('Uploading classrooms...', 'info');
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/admin/upload_classrooms', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                showNotification(`Success! Added: ${result.added}, Updated: ${result.updated}`, 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                const error = await response.json();
+                showNotification('Error: ' + error.detail, 'error');
+            }
+        } catch (err) {
+            showNotification('Upload failed: ' + err.message, 'error');
+        }
+    };
+
+    fileInput.click();
+}
+
+function exportClassrooms() {
+    showNotification('Exporting classrooms...', 'info');
+
+    const csvContent = 'Class no,Time Slot,Name,class,class capacity,Department,Year,status,Type\n' +
+        classroomsData.map(c =>
+            `${c.room_number || ''},${c.timeSlot || ''},${c.name || ''},${c.class || ''},${c.capacity || ''},${c.department || ''},${c.year || ''},${c.status || ''},${c.type || ''}`
+        ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `classrooms-export-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
+    showNotification('Classrooms exported successfully!', 'success');
+}
+
+// Statistics
+function updateStatistics() {
+    const totalClassrooms = classroomsData.length;
+    const availableClassrooms = classroomsData.filter(c => c.status === 'active').length;
+    const bookedClassrooms = classroomsData.filter(c => c.status === 'booked').length;
+    const totalCapacity = classroomsData.reduce((sum, c) => sum + (c.capacity || 0), 0);
+
+    document.getElementById('totalClassrooms').textContent = totalClassrooms;
+    document.getElementById('availableClassrooms').textContent = availableClassrooms;
+    document.getElementById('bookedClassrooms').textContent = bookedClassrooms;
+    document.getElementById('totalCapacity').textContent = totalCapacity;
+}
+
+// Modal functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: white;
+        border-left: 4px solid ${getNotificationColor(type)};
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 8px; padding: 1rem; z-index: 10000;
+        display: flex; align-items: center; gap: 1rem; min-width: 300px;
+        animation: slideInRight 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function getNotificationIcon(type) {
+    switch(type) {
+        case 'success': return 'check-circle';
+        case 'error': return 'exclamation-circle';
+        case 'warning': return 'exclamation-triangle';
+        default: return 'info-circle';
+    }
+}
+
+function getNotificationColor(type) {
+    switch(type) {
+        case 'success': return '#38a169';
+        case 'error': return '#e53e3e';
+        case 'warning': return '#ed8936';
+        default: return '#667eea';
+    }
+}
+
+console.log('Classroom management system loaded successfully!');
+</script>
+</body>
+</html>

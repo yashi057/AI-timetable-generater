@@ -1,4 +1,5 @@
-// Dashboard's functional JS
+
+
 let dashboardData = {
     stats: {},
     timetableHistory: [],
@@ -123,10 +124,18 @@ function updateAdminProfile() {
 
 function updateStats() {
     const stats = dashboardData.stats;
-    document.getElementById('totalClasses').textContent = stats.totalClasses || 0;
-    document.getElementById('totalSubjects').textContent = stats.totalSubjects || 0;
-    document.getElementById('totalTeachers').textContent = stats.totalTeachers || 0;
-    document.getElementById('totalRooms').textContent = stats.totalRooms || 0;
+
+    const classesEl = document.getElementById('totalClasses');
+    if (classesEl) classesEl.textContent = stats.totalClasses || 0;
+
+    const subjectsEl = document.getElementById('totalSubjects');
+    if (subjectsEl) subjectsEl.textContent = stats.totalSubjects || 0;
+
+    const teachersEl = document.getElementById('totalTeachers');
+    if (teachersEl) teachersEl.textContent = stats.totalTeachers || 0;
+
+    const roomsEl = document.getElementById('totalRooms');
+    if (roomsEl) roomsEl.textContent = stats.totalRooms || 0;
 }
 
 function updateTimetableHistory() {
